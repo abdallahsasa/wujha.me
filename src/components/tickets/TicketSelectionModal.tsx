@@ -41,6 +41,7 @@ export default function TicketSelectionModal({ open, onClose, event, ticketTypes
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
+  const [birthday, setBirthday] = useState("");
   const [phoneError, setPhoneError] = useState("");
 
   const [submitting, setSubmitting] = useState(false);
@@ -109,6 +110,7 @@ export default function TicketSelectionModal({ open, onClose, event, ticketTypes
     const normalizedEmail = email.trim().toLowerCase();
 
     if (!trimmedName) { toast.error("الرجاء إدخال الاسم الكامل"); return; }
+    if (!birthday) { toast.error("الرجاء إدخال تاريخ الميلاد"); return; }
     if (!trimmedPhone) { toast.error("الرجاء إدخال رقم الهاتف"); return; }
 
     const phoneValidation = validatePhone(trimmedPhone);
@@ -158,7 +160,8 @@ export default function TicketSelectionModal({ open, onClose, event, ticketTypes
       const ticketInserts: Array<{
         event_id: string; ticket_type_id: string; user_id: string;
         guest_name: string; guest_phone: string; guest_email: string;
-        qr_code: string; status: string; payment_status: string;
+        guest_birthday: string;
+        qr_code: string | null; status: string; payment_status: string;
         payment_method: string | null; payment_reference: string | null; payment_amount: number;
       }> = [];
 
@@ -172,6 +175,7 @@ export default function TicketSelectionModal({ open, onClose, event, ticketTypes
             guest_name: trimmedName,
             guest_phone: trimmedPhone,
             guest_email: normalizedEmail || "",
+            guest_birthday: birthday,
             qr_code: isFree ? crypto.randomUUID() : null,
             status: isFree ? "valid" : "pending_payment",
             payment_status: isFree ? "free" : "pending",
@@ -348,6 +352,15 @@ export default function TicketSelectionModal({ open, onClose, event, ticketTypes
                   <input value={email} onChange={e => !publicUser && setEmail(e.target.value)} placeholder="email@example.com" type="email" dir="ltr"
                     maxLength={255} readOnly={!!publicUser}
                     className={`w-full h-11 rounded-lg border border-wujha-border bg-wujha-surface px-3 text-sm text-wujha-text placeholder:text-wujha-text-muted focus:outline-none focus:border-wujha-accent/50 transition text-right ${publicUser ? "opacity-60 cursor-not-allowed" : ""}`} />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-wujha-text">تاريخ الميلاد *</label>
+                  <input 
+                    value={birthday} 
+                    onChange={e => setBirthday(e.target.value)} 
+                    type="date" 
+                    className="w-full h-11 rounded-lg border border-wujha-border bg-wujha-surface px-3 text-sm text-wujha-text focus:outline-none focus:border-wujha-accent/50 transition" 
+                  />
                 </div>
               </div>
 

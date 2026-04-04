@@ -17,6 +17,7 @@ const registerSchema = z.object({
   name: z.string().min(2, "Name is too short"),
   phone: z.string().min(8, "Invalid phone number"),
   email: z.string().email("Invalid email address"),
+  birthday: z.string().min(1, "Birthday is required"),
 });
 
 const SubOrganizerRegister = () => {
@@ -30,7 +31,7 @@ const SubOrganizerRegister = () => {
 
   const form = useForm<z.infer<typeof registerSchema>>({
     resolver: zodResolver(registerSchema),
-    defaultValues: { name: "", phone: "", email: "" },
+    defaultValues: { name: "", phone: "", email: "", birthday: "" },
   });
 
   useEffect(() => {
@@ -81,6 +82,7 @@ const SubOrganizerRegister = () => {
         guest_name: values.name,
         guest_phone: values.phone,
         guest_email: values.email,
+        guest_birthday: values.birthday,
         status: "valid",
         payment_status: "free", // Defaulting to free for this flow, can be adjusted
         qr_code: `SUB-${allocation.id.substring(0,4)}-${Math.random().toString(36).substring(2, 10).toUpperCase()}`
@@ -233,6 +235,18 @@ const SubOrganizerRegister = () => {
                         </FormLabel>
                         <FormControl>
                           <Input type="email" placeholder="email@example.com" {...field} className="h-12 bg-white/[0.03] border-white/10 rounded-xl focus:ring-wujha-accent/50 focus:border-wujha-accent text-right" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
+
+                    <FormField control={form.control} name="birthday" render={({ field }) => (
+                      <FormItem className="space-y-3">
+                        <FormLabel className="text-xs font-bold text-white/50 uppercase tracking-widest flex items-center gap-2">
+                          <Calendar className="h-3 w-3" /> تاريخ الميلاد
+                        </FormLabel>
+                        <FormControl>
+                          <Input type="date" {...field} className="h-12 bg-white/[0.03] border-white/10 rounded-xl focus:ring-wujha-accent/50 focus:border-wujha-accent text-right invert brightness-100" />
                         </FormControl>
                         <FormMessage />
                       </FormItem>

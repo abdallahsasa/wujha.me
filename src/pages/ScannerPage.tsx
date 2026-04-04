@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { CheckCircle2, XCircle, AlertTriangle, ScanLine, UserPlus, X, Shield, Clock } from "lucide-react";
+import { CheckCircle2, XCircle, AlertTriangle, ScanLine, UserPlus, X, Shield, Clock, Loader2 } from "lucide-react";
 import { validatePhone, normalizeSyrianPhone } from "@/lib/phone-validation";
 import { toast } from "sonner";
 import { useAdminAuth } from "@/contexts/AdminAuthContext";
@@ -13,6 +13,7 @@ interface TicketResult {
   id: string;
   guest_name: string;
   guest_phone: string;
+  guest_birthday: string | null;
   status: string;
   checked_in_at: string | null;
   guest_count: number;
@@ -55,6 +56,12 @@ const ScannerPage = () => {
   const [ticketTypes, setTicketTypes] = useState<TicketTypeOption[]>([]);
   const [addForm, setAddForm] = useState({ name: "", phone: "", tierId: "", quantity: 1 });
   const [addLoading, setAddLoading] = useState(false);
+  
+  // Manual Search state
+  const [showManualSearch, setShowManualSearch] = useState(false);
+  const [manualForm, setManualForm] = useState({ name: "", birthday: "" });
+  const [searchResult, setSearchResult] = useState<TicketResult | null>(null);
+  const [searching, setSearching] = useState(false);
 
   const fetchStats = useCallback(async () => {
     if (!eventId) return;
@@ -237,6 +244,74 @@ const ScannerPage = () => {
     setAddLoading(false);
   };
 
+  const handleManualSearch = async () => {
+    if (!manualForm.name.trim() || !manualForm.birthday || !eventId) return;
+    setSearching(true);
+    setSearchResult(null);
+    try {
+      const { data, error } = await (supabase as any)
+        .from("tickets")
+        .select("id, guest_name, guest_phone, guest_birthday, status, checked_in_at, guest_count, ticket_type_id")
+        .eq("event_id", eventId)
+        .ilike("guest_name", `%${manualForm.name.trim()}%`)
+        .eq("guest_birthday", manualForm.birthday)
+        .maybeSingle();
+
+      if (error) throw error;
+      if (!data) {
+        toast.error("لم يتم العثور على تذكرة تطابق هذه البيانات");
+      } else {
+        setSearchResult(data as TicketResult);
+      }
+    } catch (err) {
+      toast.error("خطأ في البحث");
+    } finally {
+      setSearching(false);
+    }
+  };
+
+  const performManualCheckIn = async (ticket: TicketResult) => {
+    if (processingRef.current || !eventId) return;
+    processingRef.current = true;
+    
+    try {
+      const { data: ttData } = await supabase.from("ticket_types").select("name_ar").eq("id", ticket.ticket_type_id).maybeSingle();
+      const ticketTypeName = ttData?.name_ar || "";
+
+      if (ticket.status === "checked_in") {
+        toast.info("هذا الضيف مسجل دخوله مسبقاً");
+        processingRef.current = false;
+        return;
+      }
+
+      const { error: updateError } = await supabase
+        .from("tickets")
+        .update({ 
+          status: "checked_in", 
+          checked_in_at: new Date().toISOString(),
+          checked_in_by: adminUser?.id || null 
+        })
+        .eq("id", ticket.id);
+
+      if (updateError) throw updateError;
+
+      setCheckedIn((prev) => prev + 1);
+      setFeedback({
+        type: "success", guestName: ticket.guest_name, guestPhone: ticket.guest_phone,
+        ticketType: ticketTypeName, message: "تم تسجيل الدخول يدوياً"
+      });
+      setShowManualSearch(false);
+      setManualForm({ name: "", birthday: "" });
+      setSearchResult(null);
+      fetchStats();
+      scheduleReset();
+    } catch {
+      toast.error("فشل في تسجيل الدخول");
+    } finally {
+      processingRef.current = false;
+    }
+  };
+
   useEffect(() => {
     if (!eventId) return;
     let html5QrCode: any = null;
@@ -294,6 +369,15 @@ const ScannerPage = () => {
             >
               <UserPlus className="w-3.5 h-3.5" />
               إضافة
+            </button>
+          )}
+          {isStaff && (
+            <button
+              onClick={() => setShowManualSearch(true)}
+              className="bg-zinc-800 hover:bg-zinc-700 text-white text-xs font-medium px-3 py-1.5 rounded-full flex items-center gap-1 transition shadow-lg"
+            >
+              <Shield className="w-3.5 h-3.5 text-emerald-400" />
+              بحث يدوي
             </button>
           )}
           <div className="bg-zinc-800 rounded-full px-3 py-1 text-sm font-mono shrink-0 shadow-inner">
@@ -438,6 +522,89 @@ const ScannerPage = () => {
             >
               {addLoading ? <div className="w-6 h-6 border-3 border-white/30 border-t-white rounded-full animate-spin" /> : <>دفع نقدي وتسجيل دخول</>}
             </button>
+          </div>
+        </div>
+      )}
+
+      {showManualSearch && (
+        <div className="fixed inset-0 z-[100] bg-zinc-950/95 backdrop-blur-sm flex items-end sm:items-center justify-center p-4">
+          <div className="bg-zinc-900 rounded-t-3xl sm:rounded-2xl w-full max-w-sm p-6 space-y-6 border-t sm:border border-zinc-800 shadow-2xl">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-full bg-emerald-500/10 flex items-center justify-center">
+                  <Shield className="w-4 h-4 text-emerald-400" />
+                </div>
+                <h3 className="text-xl font-bold">البحث والتحقق</h3>
+              </div>
+              <button 
+                onClick={() => {
+                  setShowManualSearch(false);
+                  setManualForm({ name: "", birthday: "" });
+                  setSearchResult(null);
+                }} 
+                className="bg-zinc-800 p-2 rounded-full text-zinc-400 hover:text-white transition"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div className="space-y-1.5">
+                <Label className="text-xs text-zinc-500 mr-1">الاسم الكامل للضيف</Label>
+                <input
+                  type="text"
+                  placeholder="ابحث عن الاسم..."
+                  value={manualForm.name}
+                  onChange={e => setManualForm(f => ({ ...f, name: e.target.value }))}
+                  className="w-full bg-zinc-800 border-zinc-700 rounded-xl px-4 py-3 text-white placeholder:text-zinc-600 focus:ring-2 focus:ring-emerald-500/50 outline-none transition"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <Label className="text-xs text-zinc-500 mr-1">تاريخ الميلاد للتحقق</Label>
+                <input
+                  type="date"
+                  value={manualForm.birthday}
+                  onChange={e => setManualForm(f => ({ ...f, birthday: e.target.value }))}
+                  className="w-full bg-zinc-800 border-zinc-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-emerald-500/50 outline-none transition invert brightness-110"
+                />
+              </div>
+
+              <Button 
+                onClick={handleManualSearch} 
+                className="w-full h-12 bg-white/5 hover:bg-white/10 text-white rounded-xl border border-white/10"
+                disabled={searching || !manualForm.name.trim() || !manualForm.birthday}
+              >
+                {searching ? <Loader2 className="w-5 h-5 animate-spin" /> : "ابحث عن التذكرة"}
+              </Button>
+            </div>
+
+            {searchResult && (
+              <div className="mt-6 p-5 rounded-2xl bg-emerald-500/5 border border-emerald-500/20 space-y-4 animate-in fade-in slide-in-from-top-2">
+                <div className="flex items-start justify-between">
+                  <div className="space-y-1">
+                    <p className="text-emerald-400 text-xs font-bold uppercase tracking-wider">تم العثور على حجز</p>
+                    <h4 className="text-xl font-bold">{searchResult.guest_name}</h4>
+                    <p className="text-emerald-400/60 font-mono text-sm">{searchResult.guest_phone}</p>
+                  </div>
+                  <div className={`px-3 py-1 rounded-full text-[10px] font-bold ${
+                    searchResult.status === "checked_in" ? "bg-amber-500/10 text-amber-500" : "bg-emerald-500/20 text-emerald-400"
+                  }`}>
+                    {searchResult.status === "checked_in" ? "مسجل مسبقاً" : "جاهز للدخول"}
+                  </div>
+                </div>
+
+                <div className="pt-2 border-t border-emerald-500/10">
+                  <Button 
+                    onClick={() => performManualCheckIn(searchResult)}
+                    disabled={searchResult.status === "checked_in"}
+                    className="w-full h-14 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl shadow-lg shadow-emerald-900/20 active:scale-95 transition-all"
+                  >
+                    تأكيد الهوية وتسجيل الدخول
+                  </Button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}
