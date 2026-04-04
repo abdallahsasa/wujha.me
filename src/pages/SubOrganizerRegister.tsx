@@ -83,6 +83,7 @@ const SubOrganizerRegister = () => {
         guest_phone: values.phone,
         guest_email: values.email,
         guest_birthday: values.birthday,
+        guest_count: 1,
         status: "valid",
         payment_status: "free", // Defaulting to free for this flow, can be adjusted
         qr_code: `SUB-${allocation.id.substring(0,4)}-${Math.random().toString(36).substring(2, 10).toUpperCase()}`
