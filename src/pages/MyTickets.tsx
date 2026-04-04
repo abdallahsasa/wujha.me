@@ -181,8 +181,8 @@ export default function MyTickets() {
                     {/* QR Code */}
                     {selectedQr === ticket.id && ticket.qr_code && ticket.status !== "pending_payment" && (
                       <div className="flex justify-center pt-3 pb-1">
-                        <div className="bg-white p-4 rounded-xl">
-                          <QRCodeSVG value={ticket.qr_code} size={180} />
+                        <div className="bg-white p-2 rounded-lg shadow-lg">
+                          <QRCodeSVG value={ticket.qr_code} size={160} />
                         </div>
                       </div>
                     )}

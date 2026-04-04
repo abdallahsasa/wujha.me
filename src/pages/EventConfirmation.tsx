@@ -201,10 +201,19 @@ export default function EventConfirmation() {
               <div className="absolute -right-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-[#0a0a0a]" />
               <div className="border-t border-dashed border-white/10 mx-6" />
             </div>
-            <div className="p-5 flex flex-col items-center">
-              <div className="bg-white p-3 rounded-xl mb-3"><QRCodeCanvas value={ticket.qr_code} size={200} level="H" bgColor="#ffffff" fgColor="#0a0a0a" className="w-full h-auto max-w-[200px]" /></div>
-              {ticket.ticket_code && <p className="text-xs font-mono text-amber-400/80 mb-2">{ticket.ticket_code}</p>}
-              <p className="text-xs text-gray-400 text-center leading-relaxed">أظهر رمز QR عند المدخل<br /><span className="text-gray-500">Show this QR code at the entrance</span></p>
+            <div className="p-6 flex flex-col items-center">
+              <div className="bg-white p-2 rounded-lg mb-4 shadow-xl">
+                <QRCodeCanvas 
+                  value={ticket.qr_code} 
+                  size={160} 
+                  level="H" 
+                  bgColor="#ffffff" 
+                  fgColor="#0a0a0a" 
+                  className="block"
+                />
+              </div>
+              {ticket.ticket_code && <p className="text-[10px] font-mono text-amber-400/60 mb-2 tracking-widest">{ticket.ticket_code}</p>}
+              <p className="text-[10px] text-gray-500 text-center leading-relaxed font-medium">أظهر رمز QR عند المدخل<br /><span className="opacity-60 italic">Show this QR code at the entrance</span></p>
             </div>
           </div>
         ))}
