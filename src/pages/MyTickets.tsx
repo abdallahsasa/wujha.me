@@ -16,6 +16,8 @@ type TicketWithDetails = {
   guest_count: number;
   checked_in_at: string | null;
   created_at: string;
+  payment_status: string;
+  seating_area?: string | null;
   events: { id: string; title_ar: string; start_date: string; cover_image: string | null; venues: { name_ar: string } | null } | null;
   ticket_types: { name_ar: string; price: number; currency: string } | null;
 };
@@ -51,9 +53,11 @@ export default function MyTickets() {
       const mapped: TicketWithDetails[] = (data || []).map((t: any) => ({
         id: t.id,
         status: t.status,
+        payment_status: t.payment_status,
         qr_code: t.qr_code,
         guest_name: t.guest_name,
         guest_count: t.guest_count,
+        seating_area: t.seating_area,
         checked_in_at: t.checked_in_at,
         created_at: t.created_at,
         events: {
@@ -74,7 +78,7 @@ export default function MyTickets() {
       // Authenticated user — RLS policy allows reading own tickets via user_id
       const { data } = await supabase
         .from("tickets")
-        .select("id, status, qr_code, guest_name, guest_count, checked_in_at, created_at, events(id, title_ar, start_date, cover_image, venues(name_ar)), ticket_types(name_ar, price, currency)")
+        .select("id, status, payment_status, qr_code, guest_name, guest_count, seating_area, checked_in_at, created_at, events(id, title_ar, start_date, cover_image, venues(name_ar)), ticket_types(name_ar, price, currency)")
         .order("created_at", { ascending: false });
       setTickets((data as unknown as TicketWithDetails[]) || []);
     }
@@ -85,7 +89,7 @@ export default function MyTickets() {
   const getStatusInfo = (ticket: TicketWithDetails) => {
     if (ticket.checked_in_at) return { label: "تم الدخول", icon: CheckCircle, color: "text-green-400", bg: "bg-green-400/10" };
     if (ticket.status === "cancelled") return { label: "ملغاة", icon: XCircle, color: "text-red-400", bg: "bg-red-400/10" };
-    if (ticket.status === "pending_payment") return { label: "بانتظار الدفع", icon: Clock, color: "text-amber-400", bg: "bg-amber-400/10" };
+    if (ticket.payment_status === "pending") return { label: "بانتظار الدفع", icon: Clock, color: "text-amber-400", bg: "bg-amber-400/10" };
     if (ticket.status === "expired") return { label: "منتهية", icon: Clock, color: "text-wujha-text-muted", bg: "bg-wujha-surface" };
     const eventDate = ticket.events?.start_date ? new Date(ticket.events.start_date) : null;
     if (eventDate && eventDate < new Date()) return { label: "منتهية", icon: Clock, color: "text-wujha-text-muted", bg: "bg-wujha-surface" };
@@ -153,6 +157,14 @@ export default function MyTickets() {
                         <span>{ticket.ticket_types?.name_ar || "تذكرة"} • {ticket.guest_name} • {ticket.guest_count} {ticket.guest_count > 1 ? "أشخاص" : "شخص"}</span>
                       </div>
                     </div>
+
+                    {/* Seating Area */}
+                    {ticket.seating_area && (
+                      <div className="p-2 rounded-lg bg-amber-500/5 border border-amber-500/10 text-center">
+                        <span className="text-[10px] text-gray-500 uppercase font-bold tracking-widest block mb-0.5">المنطقة / Section</span>
+                        <span className="text-amber-500 font-bold text-sm">{ticket.seating_area}</span>
+                      </div>
+                    )}
 
                     {/* Actions */}
                     <div className="flex gap-2 pt-1">

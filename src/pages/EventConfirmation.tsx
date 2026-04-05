@@ -18,6 +18,7 @@ interface TicketData {
   status: string;
   payment_status: string;
   payment_reference: string | null;
+  seating_area: string | null;
   events: {
     title_ar: string;
     slug: string;
@@ -64,6 +65,7 @@ export default function EventConfirmation() {
         status: t.status,
         payment_status: t.payment_status,
         payment_reference: t.payment_reference,
+        seating_area: t.seating_area,
         events: {
           title_ar: t.event_title_ar,
           slug: t.event_slug,
@@ -213,6 +215,12 @@ export default function EventConfirmation() {
                 />
               </div>
               {ticket.ticket_code && <p className="text-[10px] font-mono text-amber-400/60 mb-2 tracking-widest">{ticket.ticket_code}</p>}
+              {ticket.seating_area && (
+                <div className="mb-4 text-center">
+                  <span className="text-[10px] text-gray-500 uppercase font-bold tracking-widest block mb-1">المنطقة / Section</span>
+                  <span className="text-amber-400 font-bold bg-amber-500/10 px-3 py-1 rounded-full">{ticket.seating_area}</span>
+                </div>
+              )}
               <p className="text-[10px] text-gray-500 text-center leading-relaxed font-medium">أظهر رمز QR عند المدخل<br /><span className="opacity-60 italic">Show this QR code at the entrance</span></p>
             </div>
           </div>
