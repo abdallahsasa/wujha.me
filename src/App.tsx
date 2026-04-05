@@ -33,6 +33,7 @@ import AdminSettings from "./pages/admin/Settings.tsx";
 import Notifications from "./pages/admin/Notifications.tsx";
 import EventsList from "./pages/admin/EventsList.tsx";
 import EventForm from "./pages/admin/EventForm.tsx";
+import EventTickets from "./pages/admin/EventTickets.tsx";
 import EventInvitation from "./pages/EventInvitation.tsx";
 import EventConfirmation from "./pages/EventConfirmation.tsx";
 import ScannerPage from "./pages/ScannerPage.tsx";
@@ -79,6 +80,7 @@ const AdminRoutes = () => (
         <Route path="events" element={<EventsList />} />
         <Route path="events/new" element={<EventForm />} />
         <Route path="events/:id/edit" element={<EventForm />} />
+        <Route path="events/:eventId/tickets" element={<EventTickets />} />
         <Route path="places" element={<PlacesList />} />
         <Route path="places/new" element={<PlaceForm />} />
         <Route path="places/:id/edit" element={<PlaceForm />} />

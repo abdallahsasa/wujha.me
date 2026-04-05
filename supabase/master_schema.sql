@@ -121,6 +121,7 @@ CREATE TABLE IF NOT EXISTS public.events (
   is_featured boolean NOT NULL DEFAULT false,
   is_free boolean NOT NULL DEFAULT false,
   is_invitation_only boolean NOT NULL DEFAULT false,
+  is_deleted boolean NOT NULL DEFAULT false,
   currency text NOT NULL DEFAULT 'SYP',
   min_price numeric,
   max_price numeric,
@@ -205,7 +206,7 @@ CREATE TABLE IF NOT EXISTS public.tickets (
   notes text,
   invitation_sent boolean NOT NULL DEFAULT false,
   checked_in_at timestamptz,
-  checked_in_by uuid REFERENCES public.admin_users(id),
+  checked_in_by uuid REFERENCES public.admin_users(id) ON DELETE SET NULL,
   created_at timestamptz NOT NULL DEFAULT now(),
   updated_at timestamptz NOT NULL DEFAULT now()
 );

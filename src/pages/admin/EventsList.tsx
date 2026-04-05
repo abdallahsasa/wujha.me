@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Pencil, Check, X } from "lucide-react";
+import { Plus, Pencil, Check, X, Ticket, Trash2 } from "lucide-react";
 import { format } from "date-fns";
 
 interface EventRow {
@@ -70,6 +70,7 @@ const EventsList = () => {
     let query = supabase
       .from("events")
       .select("id, title_ar, start_date, status, city_id, organizer_id, cities(name_ar), tickets(count)")
+      .eq("is_deleted", false)
       .order("start_date", { ascending: false });
 
     if (isOrganizerRole && adminUser?.organizer_id) {
@@ -163,6 +164,22 @@ const EventsList = () => {
     fetchEvents();
   };
 
+  const handleDelete = async (ev: EventRow) => {
+    if (!window.confirm("Are you sure you want to archive this event? It will be hidden from the website but all tickets will be kept.")) return;
+    
+    const { error } = await supabase
+      .from("events")
+      .update({ is_deleted: true })
+      .eq("id", ev.id);
+      
+    if (error) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: "Event archived successfully" });
+      fetchEvents();
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -251,11 +268,27 @@ const EventsList = () => {
                       <TableCell>{ev.tickets?.[0]?.count ?? 0}</TableCell>
                       <TableCell>
                         <div className="flex items-center gap-1">
-                          <Button variant="ghost" size="icon" asChild>
+                          <Button variant="ghost" size="icon" asChild title="Manage Tickets">
+                            <Link to={`/admin/events/${ev.id}/tickets`}>
+                              <Ticket className="h-4 w-4" />
+                            </Link>
+                          </Button>
+                          <Button variant="ghost" size="icon" asChild title="Edit Event">
                             <Link to={`/admin/events/${ev.id}/edit`}>
                               <Pencil className="h-4 w-4" />
                             </Link>
                           </Button>
+                          {isAdmin && (
+                            <Button 
+                              variant="ghost" 
+                              size="icon" 
+                              className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                              onClick={() => handleDelete(ev)}
+                              title="Archive Event"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          )}
                           {isAdmin && ev.status === "pending_approval" && (
                             <>
                               <Button
