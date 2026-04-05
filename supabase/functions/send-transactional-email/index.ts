@@ -222,7 +222,7 @@ Deno.serve(async (req) => {
         error_message: 'Failed to create unsubscribe token',
       })
       return new Response(
-        JSON.stringify({ error: 'Failed to prepare email' }),
+        JSON.stringify({ error: 'Failed to prepare email (tokenError)', details: tokenError }),
         {
           status: 500,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
