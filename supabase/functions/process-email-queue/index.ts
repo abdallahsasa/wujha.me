@@ -325,9 +325,10 @@ Deno.serve(async (req) => {
         // 403 means emails are disabled for this project — retrying won't help.
         // Move straight to DLQ and stop processing the rest of the batch.
         if (isForbidden(error)) {
-          await moveToDlq(supabase, queue, msg, 'Emails disabled for this project')
+          console.error('Emails disabled/forbidden by provider:', { error, queue, msgId: payload?.message_id })
+          await moveToDlq(supabase, queue, msg, `Emails disabled for this project (Provider error: ${errorMsg})`)
           return new Response(
-            JSON.stringify({ processed: totalProcessed, stopped: 'emails_disabled' }),
+            JSON.stringify({ processed: totalProcessed, stopped: 'emails_disabled', details: error }),
             { headers: { 'Content-Type': 'application/json' } }
           )
         }
