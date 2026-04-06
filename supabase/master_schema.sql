@@ -505,7 +505,7 @@ BEGIN
       (_ticket->>'guest_name'), 
       (_ticket->>'guest_phone'), 
       (_ticket->>'guest_email'),
-      (_ticket->>'guest_birthday'),
+      (_ticket->>'guest_birthday')::date,
       _qr_code, 
       (_ticket->>'status'), 
       (_ticket->>'payment_status'),
