@@ -53,39 +53,48 @@ const GuestsList = () => {
         .eq("organizer_id", adminUser.organizer_id);
       
       const eventIds = orgEvents?.map(e => e.id) || [];
-      
       if (eventIds.length === 0) {
         setUsers([]);
         setLoading(false);
         return;
       }
 
-      // Get unique user_ids from tickets for those events
-      const { data: ticketData } = await supabase
+      // 1. Get ALL tickets for these events
+      const { data: ticketData, error: te } = await supabase
         .from("tickets")
-        .select("user_id")
+        .select("guest_name, guest_phone, guest_email, created_at, user_id")
         .in("event_id", eventIds)
-        .not("user_id", "is", null);
+        .order("created_at", { ascending: false });
 
-      const userIds = [...new Set(ticketData?.map(t => t.user_id).filter(Boolean) || [])];
-      
-      if (userIds.length === 0) {
-        setUsers([]);
+      if (te) {
+        toast({ title: "Error", description: te.message, variant: "destructive" });
         setLoading(false);
         return;
       }
 
-      const { data, error } = await supabase
-        .from("users")
-        .select("id, name, phone, email, total_events_attended, is_active, created_at, cities(name_ar)")
-        .in("id", userIds)
-        .order("created_at", { ascending: false });
+      // 2. Map to UserRow structure (combining duplicates by phone/email)
+      const uniqueGuests = new Map<string, UserRow>();
+      
+      ticketData?.forEach(t => {
+        const key = t.guest_phone || t.guest_email || `anon-${crypto.randomUUID()}`;
+        if (!uniqueGuests.has(key)) {
+          uniqueGuests.set(key, {
+            id: t.user_id || `temp-${key}`,
+            name: t.guest_name || "Guest",
+            phone: t.guest_phone || "—",
+            email: t.guest_email || null,
+            total_events_attended: 1,
+            is_active: true,
+            created_at: t.created_at,
+            cities: null, // We'll fetch this if we have a user_id
+          });
+        } else {
+          const g = uniqueGuests.get(key)!;
+          g.total_events_attended += 1;
+        }
+      });
 
-      if (error) {
-        toast({ title: "Error", description: error.message, variant: "destructive" });
-      } else {
-        setUsers((data as unknown as UserRow[]) ?? []);
-      }
+      setUsers(Array.from(uniqueGuests.values()));
     } else {
       // Admins: fetch all users
       const { data, error } = await supabase

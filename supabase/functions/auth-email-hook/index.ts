@@ -217,12 +217,19 @@ async function handleWebhook(req: Request): Promise<Response> {
     )
   }
 
+  // Webhook payload.data.url contains the redirect link from Supabase Auth.
+  // We force it to use ROOT_DOMAIN (wujha.me) even if the dashboard settings are old.
+  let confirmationUrl = payload.data.url
+  if (confirmationUrl && typeof confirmationUrl === 'string') {
+    confirmationUrl = confirmationUrl.replace('wujha.abdullahalsasa.com', ROOT_DOMAIN)
+  }
+
   // Build template props from payload.data (HookData structure)
   const templateProps = {
     siteName: SITE_NAME,
     siteUrl: `https://${ROOT_DOMAIN}`,
     recipient: payload.data.email,
-    confirmationUrl: payload.data.url,
+    confirmationUrl: confirmationUrl,
     token: payload.data.token,
     email: payload.data.email,
     newEmail: payload.data.new_email,

@@ -106,10 +106,22 @@ const Dashboard = () => {
 
         const orgTickets = (rawTickets as any[])?.filter(t => orgEventIds.has(t.event_id)) || [];
 
+        // Count unique guests for this organizer
+        const { data: allOrgTickets } = await supabase
+          .from("tickets")
+          .select("guest_phone, guest_email")
+          .in("event_id", Array.from(orgEventIds));
+        
+        const uniqueGuestKeys = new Set();
+        allOrgTickets?.forEach(t => {
+          const key = t.guest_phone || t.guest_email;
+          if (key) uniqueGuestKeys.add(key);
+        });
+
         setCounts({
           events: eventsRes.count ?? 0,
           places: 0,
-          users: 0,
+          users: uniqueGuestKeys.size,
           tickets: orgTickets.length,
           checkinsToday: (rawTickets as any[])?.filter(t => orgEventIds.has(t.event_id) && t.checked_in_at && new Date(t.checked_in_at) >= todayStart).length ?? 0,
           pendingApprovals: 0,
