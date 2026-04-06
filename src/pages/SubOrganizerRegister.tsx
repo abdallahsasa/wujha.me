@@ -90,6 +90,25 @@ const SubOrganizerRegister = () => {
       };
       const { data, error } = await supabase.rpc("book_tickets", { _tickets: [ticketData] });
       if (error) throw error;
+      
+      // Trigger confirmation email
+      if (values.email) {
+        const baseUrl = window.location.origin;
+        supabase.functions.invoke("send-transactional-email", {
+          body: {
+            templateName: "ticket-confirmation",
+            recipientEmail: values.email.toLowerCase().trim(),
+            idempotencyKey: `ticket-confirm-sub-${data[0]?.id}`,
+            templateData: {
+              guestName: values.name,
+              eventTitle: event.title_ar,
+              ticketCount: 1,
+              confirmationUrl: `${baseUrl}/invite/${allocation.event_id}/confirmation/${data[0]?.id}`,
+            },
+          },
+        }).catch(console.error);
+      }
+
       toast({ title: "تم التسجيل بنجاح!", description: "تم إصدار تذكرتك بنجاح." });
       navigate(`/invite/${allocation.event_id}/confirmation/${data[0]?.id}`);
     } catch (err: any) {
