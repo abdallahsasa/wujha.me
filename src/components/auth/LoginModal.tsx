@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { X, Sparkles, Mail, Eye, EyeOff } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable/index";
 import { usePublicAuth } from "@/contexts/PublicAuthContext";
 import { toast } from "sonner";
 import { validatePhone, normalizeSyrianPhone } from "@/lib/phone-validation";
@@ -80,13 +79,15 @@ export default function LoginModal({ open, onClose, context = "general" }: { ope
   const handleGoogleLogin = async () => {
     setLoading(true);
     try {
-      const result = await lovable.auth.signInWithOAuth("google", {
-        redirect_uri: window.location.origin,
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: window.location.origin,
+        },
       });
-      if (result.error) {
+      if (error) {
         toast.error("فشل تسجيل الدخول بجوجل");
       }
-      // If redirected, page will reload
     } catch {
       toast.error("حدث خطأ");
     } finally {
