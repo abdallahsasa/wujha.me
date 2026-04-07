@@ -22,8 +22,10 @@ const PaymentExpiredEmail = ({
   ticketCount,
 }: PaymentExpiredProps) => (
   <Html lang="ar" dir="rtl">
-    <Head />
-    <Preview>انتهت مهلة الدفع — {eventTitle || 'الحدث'}</Preview>
+    <Head>
+      <meta charSet="UTF-8" />
+    </Head>
+    <Preview>{"\u0627\u0646\u062a\u0647\u062a \u0645\u0647\u0644\u0629 \u0627\u0644\u062f\u0641\u0639"} \u2014 {eventTitle || "\u0627\u0644\u062d\u062f\u062b"}</Preview>
     <Body style={main}>
       <Container style={container}>
         <Section style={logoSection}>
@@ -36,17 +38,17 @@ const PaymentExpiredEmail = ({
 
         <Section style={bodySection}>
           <Heading style={h1}>
-            {guestName ? `مرحباً ${guestName}،` : 'مرحباً،'}
+            {guestName ? `\u0645\u0631\u062d\u0628\u0627\u064b ${guestName}\u060c` : '\u0645\u0631\u062d\u0628\u0627\u064b\u060c'}
           </Heading>
           <Text style={bodyText}>
-            انتهت مهلة الدفع (٢٤ ساعة) لحجزك في <strong>{eventTitle || 'الحدث'}</strong> وتم إلغاء التذاكر تلقائياً.
+            {"\u0627\u0646\u062a\u0647\u062a \u0645\u0647\u0644\u0629 \u0627\u0644\u062f\u0641\u0639 (\u0662\u0664 \u0633\u0627\u0639\u0629) \u0644\u062d\u062c\u0632\u0643 \u0641\u064a"} <strong>{eventTitle || "\u0627\u0644\u062d\u062f\u062b"}</strong> {"\u0648\u062a\u0645 \u0625\u0644\u063a\u0627\u0621 \u0627\u0644\u062a\u0630\u0627\u0643\u0631 \u062a\u0644\u0642\u0627\u0626\u064a\u0627\u064b."}
           </Text>
           {eventDate && <Text style={metaText}>📅 {eventDate}</Text>}
           {venueName && <Text style={metaText}>📍 {venueName}</Text>}
-          {ticketCount && <Text style={metaText}>🎟️ عدد التذاكر: {ticketCount}</Text>}
+          {ticketCount && <Text style={metaText}>🎟️ {"\u0639\u062f\u062f \u0627\u0644\u062a\u0630\u0627\u0643\u0631: "} {ticketCount}</Text>}
 
           <Text style={bodyText}>
-            يمكنك إعادة الحجز من جديد إذا كانت التذاكر لا تزال متاحة.
+            {"\u064a\u0645\u0643\u0646\u0643 \u0625\u0631\u0627\u062f\u0629 \u0627\u0644\u062d\u062c\u0632 \u0645\u0646 \u062c\u062f\u064a\u062f \u0625\u0630\u0627 \u0643\u0627\u0646\u062a \u0627\u0644\u062a\u0630\u0627\u0643\u0631 \u0644\u0627 \u062a\u0632\u0627\u0644 \u0645\u062a\u0627\u062d\u0629."}
           </Text>
         </Section>
 
@@ -66,8 +68,8 @@ export const template = {
   component: PaymentExpiredEmail,
   subject: (data: Record<string, any>) =>
     data?.eventTitle
-      ? `انتهت مهلة الدفع — ${data.eventTitle}`
-      : 'انتهت مهلة الدفع',
+      ? `\u0627\u0646\u062a\u0647\u062a \u0645\u0647\u0644\u0629 \u0627\u0644\u062f\u0641\u0639 \u2014 ${data.eventTitle}`
+      : '\u0627\u0646\u062a\u0647\u062a \u0645\u0647\u0644\u0629 \u0627\u0644\u062f\u0641\u0639',
   displayName: 'Payment expired',
   previewData: {
     guestName: 'أحمد',

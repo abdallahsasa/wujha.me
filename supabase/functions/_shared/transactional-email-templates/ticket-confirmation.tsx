@@ -28,8 +28,10 @@ const TicketConfirmationEmail = ({
   coverImage,
 }: TicketConfirmationProps) => (
   <Html lang="ar" dir="rtl">
-    <Head />
-    <Preview>تأكيد تسجيلك في {eventTitle || 'الحدث'}</Preview>
+    <Head>
+      <meta charSet="UTF-8" />
+    </Head>
+    <Preview>{"\u062a\u0623\u0643\u064a\u062f \u062a\u0633\u062c\u064a\u0644\u0643 \u0641\u064a"} {eventTitle || "\u0627\u0644\u062d\u062f\u062b"}</Preview>
     <Body style={main}>
       <Container style={container}>
         {/* Logo */}
@@ -46,7 +48,7 @@ const TicketConfirmationEmail = ({
 
         {/* Event Info Card */}
         <Section style={eventCard}>
-          <Heading style={eventTitleStyle}>{eventTitle || 'الحدث'}</Heading>
+          <Heading style={eventTitleStyle}>{eventTitle || "\u0627\u0644\u062d\u062f\u062b"}</Heading>
           <Text style={eventMeta}>
             {eventDate && <span>{eventDate}</span>}
             {eventDate && eventTime && <span> • </span>}
@@ -60,14 +62,14 @@ const TicketConfirmationEmail = ({
         {/* Greeting */}
         <Section style={bodySection}>
           <Text style={greeting}>
-            {guestName ? `مرحباً ${guestName}،` : 'مرحباً،'}
+            {guestName ? `\u0645\u0631\u062d\u0628\u0627\u064b ${guestName}\u060c` : '\u0645\u0631\u062d\u0628\u0627\u064b\u060c'}
           </Text>
           <Text style={bodyText}>
-            شكراً لتسجيلك! تذاكرك جاهزة.
+            {"\u0634\u0643\u0631\u0627\u064b \u0644\u062a\u0633\u062c\u064a\u0644\u0643! \u062a\u0630\u0627\u0643\u0631\u0643 \u062c\u0627\u0647\u0632\u0629."}
           </Text>
           {ticketCount && ticketCount > 0 && (
             <Text style={ticketCountText}>
-              عدد التذاكر: {ticketCount}
+              {"\u0639\u062f\u062f \u0627\u0644\u062a\u0630\u0627\u0643\u0631: "} {ticketCount}
             </Text>
           )}
         </Section>
@@ -76,7 +78,7 @@ const TicketConfirmationEmail = ({
         {confirmationUrl && (
           <Section style={ctaSection}>
             <Button href={confirmationUrl} style={ctaButton}>
-              عرض التذاكر
+              {"\u0639\u0631\u0636 \u0627\u0644\u062a\u0630\u0627\u0643\u0631"}
             </Button>
           </Section>
         )}
@@ -98,8 +100,8 @@ export const template = {
   component: TicketConfirmationEmail,
   subject: (data: Record<string, any>) =>
     data?.eventTitle
-      ? `تأكيد تسجيلك — ${data.eventTitle}`
-      : 'تأكيد تسجيلك في الحدث',
+      ? `\u062a\u0623\u0643\u064a\u062f \u062a\u0633\u062c\u064a\u0644\u0643 \u2014 ${data.eventTitle}`
+      : '\u062a\u0623\u0643\u064a\u062f \u062a\u0633\u062c\u064a\u0644\u0643 \u0641\u064a \u0627\u0644\u062d\u062f\u062b',
   displayName: 'Ticket confirmation',
   previewData: {
     guestName: 'أحمد',

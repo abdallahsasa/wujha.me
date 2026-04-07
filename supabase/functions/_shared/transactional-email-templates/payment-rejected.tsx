@@ -24,8 +24,10 @@ const PaymentRejectedEmail = ({
   supportWhatsApp,
 }: PaymentRejectedProps) => (
   <Html lang="ar" dir="rtl">
-    <Head />
-    <Preview>لم يتم تأكيد الدفع — {eventTitle || 'الحدث'}</Preview>
+    <Head>
+      <meta charSet="UTF-8" />
+    </Head>
+    <Preview>{"\u0644\u0645 \u064a\u062a\u0645 \u062a\u0623\u0643\u064a\u062f \u0627\u0644\u062f\u0641\u0639"} \u2014 {eventTitle || "\u0627\u0644\u062d\u062f\u062b"}</Preview>
     <Body style={main}>
       <Container style={container}>
         <Section style={logoSection}>
@@ -38,22 +40,22 @@ const PaymentRejectedEmail = ({
 
         <Section style={bodySection}>
           <Heading style={h1}>
-            {guestName ? `عذراً ${guestName}،` : 'عذراً،'}
+            {guestName ? `\u0639\u0630\u0631\u0627\u064b ${guestName}\u060c` : '\u0639\u0630\u0631\u0627\u064b\u060c'}
           </Heading>
           <Text style={bodyText}>
-            لم يتم تأكيد الدفع لحجزك في <strong>{eventTitle || 'الحدث'}</strong>.
+            {"\u0644\u0645 \u064a\u062a\u0645 \u062a\u0623\u0643\u064a\u062f \u0627\u0644\u062f\u0641\u0639 \u0644\u062d\u062c\u0632\u0643 \u0641\u064a"} <strong>{eventTitle || "\u0627\u0644\u062d\u062f\u062b"}</strong>.
           </Text>
           {eventDate && <Text style={metaText}>📅 {eventDate}</Text>}
           {venueName && <Text style={metaText}>📍 {venueName}</Text>}
-          {ticketCount && <Text style={metaText}>🎟️ عدد التذاكر: {ticketCount}</Text>}
+          {ticketCount && <Text style={metaText}>🎟️ {"\u0639\u062f\u062f \u0627\u0644\u062a\u0630\u0627\u0643\u0631: "} {ticketCount}</Text>}
 
           <Text style={bodyText}>
-            إذا كنت قد أجريت عملية الدفع بالفعل، يرجى التواصل مع فريق الدعم وإرسال إيصال الدفع.
+            {"\u0625\u0630\u0627 \u0643\u0646\u062a \u0642\u062f \u0623\u062c\u0631\u064a\u062a \u0639\u0645\u0644\u064a\u0629 \u0627\u0644\u062f\u0641\u0639 \u0628\u0627\u0644\u0641\u0639\u0644\u060c \u064a\u0631\u062c\u0649 \u0627\u0644\u062a\u0648\u0627\u0635\u0644 \u0645\u0639 \u0641\u0631\u064a\u0642 \u0627\u0644\u062f\u0639\u0645 \u0648\u0625\u0631\u0633\u0627\u0644 \u0625\u064a\u0635\u0627\u0644 \u0627\u0644\u062f\u0641\u0639."}
           </Text>
 
           {supportWhatsApp && (
             <Text style={bodyText}>
-              تواصل معنا عبر واتساب: <a href={`https://wa.me/${supportWhatsApp}`} style={linkStyle}>{supportWhatsApp}</a>
+              {"\u062a\u0648\u0627\u0635\u0644 \u0645\u0639\u0646\u0627 \u0639\u0628\u0631 \u0648\u0627\u062a\u0633\u0627\u0628: "} <a href={`https://wa.me/${supportWhatsApp}`} style={linkStyle}>{supportWhatsApp}</a>
             </Text>
           )}
         </Section>
@@ -74,8 +76,8 @@ export const template = {
   component: PaymentRejectedEmail,
   subject: (data: Record<string, any>) =>
     data?.eventTitle
-      ? `لم يتم تأكيد الدفع — ${data.eventTitle}`
-      : 'لم يتم تأكيد الدفع',
+      ? `\u0644\u0645 \u064a\u062a\u0645 \u062a\u0623\u0643\u064a\u062f \u0627\u0644\u062f\u0641\u0639 \u2014 ${data.eventTitle}`
+      : '\u0644\u0645 \u064a\u062a\u0645 \u062a\u0623\u0643\u064a\u062f \u0627\u0644\u062f\u0641\u0639',
   displayName: 'Payment rejected',
   previewData: {
     guestName: 'أحمد',

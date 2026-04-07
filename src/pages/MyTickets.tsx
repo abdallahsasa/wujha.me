@@ -43,44 +43,82 @@ export default function MyTickets() {
   const fetchTickets = async () => {
     setLoading(true);
 
-    if (currentUser) {
-      // Use secure RPC for guest lookups
-      const { data } = await supabase.rpc("get_tickets_by_guest", {
-        _phone: currentUser.phone,
-        _email: currentUser.email || "",
-      });
+    try {
+      if (currentUser) {
+        // Use secure RPC for guest lookups
+        const { data } = await supabase.rpc("get_tickets_by_guest", {
+          _phone: currentUser.phone || "",
+          _email: currentUser.email || "",
+        });
 
-      const mapped: TicketWithDetails[] = (data || []).map((t: any) => ({
-        id: t.id,
-        status: t.status,
-        payment_status: t.payment_status,
-        qr_code: t.qr_code,
-        guest_name: t.guest_name,
-        guest_count: t.guest_count,
-        seating_area: t.seating_area,
-        checked_in_at: t.checked_in_at,
-        created_at: t.created_at,
-        events: {
-          id: t.event_id,
-          title_ar: t.event_title_ar,
-          start_date: t.event_start_date,
-          cover_image: t.event_cover_image,
-          venues: t.venue_name_ar ? { name_ar: t.venue_name_ar } : null,
-        },
-        ticket_types: t.ticket_type_name_ar ? {
-          name_ar: t.ticket_type_name_ar,
-          price: t.ticket_type_price,
-          currency: t.ticket_type_currency,
-        } : null,
-      }));
-      setTickets(mapped);
-    } else if (authUser) {
-      // Authenticated user — RLS policy allows reading own tickets via user_id
-      const { data } = await supabase
-        .from("tickets")
-        .select("id, status, payment_status, qr_code, guest_name, guest_count, seating_area, checked_in_at, created_at, events(id, title_ar, start_date, cover_image, venues(name_ar)), ticket_types(name_ar, price, currency)")
-        .order("created_at", { ascending: false });
-      setTickets((data as unknown as TicketWithDetails[]) || []);
+        const mapped = (data || []).map((t: any) => ({
+          id: t.id,
+          status: t.status,
+          payment_status: t.payment_status,
+          qr_code: t.qr_code,
+          guest_name: t.guest_name,
+          guest_count: t.guest_count,
+          seating_area: t.seating_area,
+          checked_in_at: t.checked_in_at,
+          created_at: t.created_at,
+          events: {
+            id: t.event_id,
+            title_ar: t.event_title_ar,
+            start_date: t.event_start_date,
+            cover_image: t.event_cover_image,
+            venues: t.venue_name_ar ? { name_ar: t.venue_name_ar } : null,
+          },
+          ticket_types: t.ticket_type_name_ar ? {
+            name_ar: t.ticket_type_name_ar,
+            price: t.ticket_type_price,
+            currency: t.ticket_type_currency,
+          } : null,
+        }));
+        setTickets(mapped);
+      } else if (authUser) {
+        // Fallback for auth users who don't have publicUser loaded yet
+        // First try to match by email via RPC to catch guest tickets
+        const { data: rpcData } = await supabase.rpc("get_tickets_by_guest", {
+          _phone: "",
+          _email: authUser.email || "",
+        });
+
+        if (rpcData && rpcData.length > 0) {
+          const mapped = rpcData.map((t: any) => ({
+            id: t.id,
+            status: t.status,
+            payment_status: t.payment_status,
+            qr_code: t.qr_code,
+            guest_name: t.guest_name,
+            guest_count: t.guest_count,
+            seating_area: t.seating_area,
+            checked_in_at: t.checked_in_at,
+            created_at: t.created_at,
+            events: {
+              id: t.event_id,
+              title_ar: t.event_title_ar,
+              start_date: t.event_start_date,
+              cover_image: t.event_cover_image,
+              venues: t.venue_name_ar ? { name_ar: t.venue_name_ar } : null,
+            },
+            ticket_types: t.ticket_type_name_ar ? {
+              name_ar: t.ticket_type_name_ar,
+              price: t.ticket_type_price,
+              currency: t.ticket_type_currency,
+            } : null,
+          }));
+          setTickets(mapped);
+        } else {
+          // Final fallback to RLS-based query
+          const { data } = await supabase
+            .from("tickets")
+            .select("id, status, payment_status, qr_code, guest_name, guest_count, seating_area, checked_in_at, created_at, events(id, title_ar, start_date, cover_image, venues(name_ar)), ticket_types(name_ar, price, currency)")
+            .order("created_at", { ascending: false });
+          setTickets((data as unknown as TicketWithDetails[]) || []);
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching tickets:", error);
     }
 
     setLoading(false);

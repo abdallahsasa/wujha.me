@@ -17,8 +17,10 @@ const OrganizerInvitationEmail = ({
   resetLink,
 }: OrganizerInvitationProps) => (
   <Html lang="ar" dir="rtl">
-    <Head />
-    <Preview>دعوة للانضمام إلى لوحة تحكم {SITE_NAME}</Preview>
+    <Head>
+      <meta charSet="UTF-8" />
+    </Head>
+    <Preview>{"\u062f\u0639\u0648\u0629 \u0644\u0644\u0627\u0646\u0636\u0645\u0627\u0645 \u0625\u0644\u0649 \u0644\u0648\u062d\u0629 \u062a\u062d\u0643\u0645"} {SITE_NAME}</Preview>
     <Body style={main}>
       <Container style={container}>
         {/* Logo */}
@@ -30,27 +32,27 @@ const OrganizerInvitationEmail = ({
 
         <Section style={bodySection}>
           <Heading style={h1}>
-            {organizerName ? `مرحباً ${organizerName}،` : 'مرحباً،'}
+            {organizerName ? `\u0645\u0631\u062d\u0628\u0627\u064b ${organizerName}\u060c` : '\u0645\u0631\u062d\u0628\u0627\u064b\u060c'}
           </Heading>
           <Text style={bodyText}>
-            تمت دعوتك للانضمام إلى لوحة تحكم <strong>{SITE_NAME}</strong> كمنظّم فعاليات.
+            {"\u062a\u0645\u062a \u062f\u0639\u0648\u062a\u0643 \u0644\u0644\u0627\u0646\u0636\u0645\u0627\u0645 \u0625\u0644\u0649 \u0644\u0648\u062d\u0629 \u062a\u062d\u0643\u0645"} <strong>{SITE_NAME}</strong> {"\u0643\u0645\u0646\u0638\u0651\u0645 \u0641\u0639\u0627\u0644\u064a\u0627\u062a."}
           </Text>
           <Text style={bodyText}>
-            لإعداد كلمة المرور الخاصة بك والبدء بإدارة فعالياتك، اضغط على الزر أدناه:
+            {"\u0644\u0625\u0639\u062f\u0627\u062f \u0643\u0644\u0645\u0629 \u0627\u0644\u0645\u0631\u0648\u0631 \u0627\u0644\u062e\u0627\u0635\u0629 \u0628\u0643 \u0648\u0627\u0644\u0628\u062f\u0621 \u0628\u0625\u062f\u0627\u0631\u0629 \u0641\u0639\u0627\u0644\u064a\u0627\u062a\u0643\u060c \u0627\u0636\u063a\u0637 \u0639\u0644\u0649 \u0627\u0644\u0632\u0631 \u0623\u062f\u0646\u0627\u0647:"}
           </Text>
         </Section>
 
         {resetLink && (
           <Section style={ctaSection}>
             <Button href={resetLink} style={ctaButton}>
-              إعداد كلمة المرور
+              {"\u0625\u0639\u062f\u0627\u062f \u0643\u0644\u0645\u0629 \u0627\u0644\u0645\u0631\u0648\u0631"}
             </Button>
           </Section>
         )}
 
         <Section style={bodySection}>
           <Text style={noteText}>
-            إذا لم تكن تتوقع هذه الدعوة، يمكنك تجاهل هذه الرسالة.
+            {"\u0625\u0630\u0627 \u0644\u0645 \u062a\u0643\u0646 \u062a\u062a\u0648\u0642\u0639 \u0647\u0630\u0647 \u0627\u0644\u062f\u0639\u0648\u0629\u060c \u064a\u0645\u0643\u0646\u0643 \u062a\u062c\u0627\u0647\u0644 \u0647\u0630\u0647 \u0627\u0644\u0631\u0633\u0627\u0644\u0629."}
           </Text>
         </Section>
 
@@ -68,7 +70,7 @@ const OrganizerInvitationEmail = ({
 
 export const template = {
   component: OrganizerInvitationEmail,
-  subject: 'دعوة للانضمام إلى لوحة تحكم WUJHA',
+  subject: (SITE_NAME === 'WUJHA' ? '\u062f\u0639\u0648\u0629 \u0644\u0644\u0627\u0646\u0636\u0645\u0627\u0645 \u0625\u0644\u0649 \u0644\u0648\u062d\u0629 \u062a\u062d\u0643\u0645 WUJHA' : '\u062f\u0639\u0648\u0629 \u0644\u0644\u0627\u0646\u0636\u0645\u0627\u0645 \u0625\u0644\u0649 \u0644\u0648\u062d\u0629 \u062a\u062d\u0643\u0645'),
   displayName: 'Organizer invitation',
   previewData: {
     organizerName: 'أحمد',
