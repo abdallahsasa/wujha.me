@@ -159,19 +159,15 @@ export async function generateTicketsPdf(
       await waitForImages(container);
 
       const canvas = await html2canvas(container, {
-        width: pxW, height: pxH, scale: 2,
+        width: pxW, height: pxH, scale: 3,
         backgroundColor: "#0a0a0a", useCORS: true, logging: false,
       });
       const imgData = canvas.toDataURL("image/jpeg", 0.92);
       doc.addImage(imgData, "JPEG", 0, 0, pageW, pageH);
 
-      // Overlay QR code directly as PNG onto the PDF to guarantee it renders
-      if (qrDataUrl) {
-        const qrSizeMm = 52.9;
-        const qrXMm = (pageW - qrSizeMm) / 2;
-        const qrYMm = 122;
-        doc.addImage(qrDataUrl, "PNG", qrXMm, qrYMm, qrSizeMm, qrSizeMm);
-      }
+      // We no longer overlay the QR code manually at hardcoded mm positions,
+      // as it causes alignment issues when text length varies.
+      // Scaling html2canvas to 3 ensures the captured QR is sharp enough for scanning.
     } finally {
       document.body.removeChild(container);
     }
