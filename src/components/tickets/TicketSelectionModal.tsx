@@ -110,6 +110,14 @@ export default function TicketSelectionModal({ open, onClose, event, ticketTypes
     const normalizedEmail = email.trim().toLowerCase();
 
     if (!trimmedName) { toast.error("الرجاء إدخال الاسم الكامل"); return; }
+    
+    // Validate name - only letters and spaces
+    const nameRegex = /^[\u0600-\u06FFa-zA-Z\s]+$/;
+    if (!nameRegex.test(trimmedName)) {
+      toast.error("الاسم يجب أن يحتوي على حروف فقط");
+      return;
+    }
+
     if (!birthday) { toast.error("الرجاء إدخال تاريخ الميلاد"); return; }
     if (!trimmedPhone) { toast.error("الرجاء إدخال رقم الهاتف"); return; }
 

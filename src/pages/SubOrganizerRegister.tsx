@@ -24,7 +24,9 @@ import { optimizeUrl, galleryUrl } from "@/lib/cloudinary";
 import { getEventShareUrl } from "@/lib/share-urls";
 
 const registerSchema = z.object({
-  name: z.string().min(2, "الاسم قصير جداً"),
+  name: z.string()
+    .min(2, "الاسم قصير جداً")
+    .regex(/^[\u0600-\u06FFa-zA-Z\s]+$/, "الاسم يجب أن يحتوي على حروف فقط (عربي أو إنجليزي)"),
   phone: z.string().min(8, "رقم الهاتف غير صحيح"),
   email: z.string().email("البريد الإلكتروني غير صحيح"),
   birthday: z.string().min(1, "تاريخ الميلاد مطلوب"),
@@ -73,6 +75,17 @@ const SubOrganizerRegister = () => {
       toast({ title: "اكتمل العدد", description: "نعتذر، لقد وصل هذا المنظم للحد الأقصى من التذاكر.", variant: "destructive" });
       return;
     }
+    const nameRegex = /^[\u0600-\u06FFa-zA-Z\s]+$/;
+    const trimmedName = values.name.trim();
+    if (trimmedName && !nameRegex.test(trimmedName)) {
+      toast({ 
+        title: "خطأ في الاسم", 
+        description: "الاسم يجب أن يحتوي على حروف فقط", 
+        variant: "destructive" 
+      });
+      return;
+    }
+
     setSubmitting(true);
     try {
       const ticketData = {

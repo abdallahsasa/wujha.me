@@ -56,6 +56,14 @@ export default function LoginModal({ open, onClose, context = "general" }: { ope
       toast.error(phoneCheck.error);
       return;
     }
+    const trimmedGuestName = guestName.trim();
+    // Validate name - only letters and spaces
+    const nameRegex = /^[\u0600-\u06FFa-zA-Z\s]+$/;
+    if (!nameRegex.test(trimmedGuestName)) {
+      toast.error("الاسم يجب أن يحتوي على حروف فقط");
+      return;
+    }
+
     setLoading(true);
     try {
       const normalizedGuestEmail = guestEmail.trim().toLowerCase();
@@ -109,11 +117,21 @@ export default function LoginModal({ open, onClose, context = "general" }: { ope
         toast.success("تم تسجيل الدخول!");
         handleClose();
       } else {
+        const trimmedSignupName = signupName.trim() || email.split("@")[0];
+        
+        // Validate name - only letters and spaces
+        const nameRegex = /^[\u0600-\u06FFa-zA-Z\s]+$/;
+        if (!nameRegex.test(trimmedSignupName)) {
+          toast.error("الاسم يجب أن يحتوي على حروف فقط");
+          setLoading(false);
+          return;
+        }
+
         const { error } = await supabase.auth.signUp({
           email,
           password,
           options: {
-            data: { full_name: signupName.trim() || email.split("@")[0] },
+            data: { full_name: trimmedSignupName },
             emailRedirectTo: window.location.origin,
           },
         });
