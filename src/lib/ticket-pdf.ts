@@ -172,7 +172,7 @@ export async function generateTicketsPdf(
       if (qrDataUrl) {
         const qrSizeMm = 52.9; // Matches 200px at high res
         const qrXMm = (pageW - qrSizeMm) / 2;
-        const qrYMm = 142.5; // Optimized Y position for the stabilized layout
+        const qrYMm = 132; // Finely tuned Y position for the stabilized layout
         doc.addImage(qrDataUrl, "PNG", qrXMm, qrYMm, qrSizeMm, qrSizeMm);
       }
     } finally {
