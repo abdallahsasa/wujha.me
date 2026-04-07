@@ -26,6 +26,7 @@ async function generateQrDataUrl(value: string, size: number = 200): Promise<str
   return QRCode.toDataURL(value, {
     width: size,
     margin: 1,
+    type: "image/png",
     errorCorrectionLevel: "H",
     color: { dark: "#0a0a0a", light: "#ffffff" },
   });
@@ -129,15 +130,17 @@ export async function generateTicketsPdf(
       </div>
       <div style="margin:0 80px;background:#1e1e1e;border-radius:16px;padding:40px 30px;text-align:center;">
         ${event.event_code ? `<div style="font-size:14px;color:#969696;margin-bottom:8px;">${escapeHtml(event.event_code)}</div>` : ""}
-        <div style="font-size:30px;font-weight:bold;color:#fff;line-height:1.5;margin-bottom:16px;">
-          ${escapeHtml(event.title_ar)}
+        <div style="min-height: 100px; display: flex; flex-direction: column; justify-content: center;">
+          <div style="font-size:30px;font-weight:bold;color:#fff;line-height:1.4;margin-bottom:12px;">
+            ${escapeHtml(event.title_ar)}
+          </div>
+          ${dateStr ? `<div style="font-size:18px;color:#c8c8c8;margin-bottom:6px;">${escapeHtml(dateStr)}  •  ${escapeHtml(timeStr)}</div>` : ""}
+          ${event.venue_name ? `<div style="font-size:18px;color:#c8c8c8;margin-bottom:10px;">${escapeHtml(event.venue_name)}</div>` : ""}
         </div>
-        ${dateStr ? `<div style="font-size:18px;color:#c8c8c8;margin-bottom:6px;">${escapeHtml(dateStr)}  •  ${escapeHtml(timeStr)}</div>` : ""}
-        ${event.venue_name ? `<div style="font-size:18px;color:#c8c8c8;margin-bottom:10px;">${escapeHtml(event.venue_name)}</div>` : ""}
         <div style="border-top:2px dashed #505050;margin:24px 30px;"></div>
         ${qrDataUrl ? `
           <div style="display:inline-block;background:#fff;padding:14px;border-radius:12px;margin:10px 0;">
-            <img src="${qrDataUrl}" width="200" height="200" style="display:block;" />
+            <div style="width:200px;height:200px;"></div>
           </div>
         ` : ""}
         <div style="font-size:24px;font-weight:bold;color:#f59e0b;margin-top:24px;">
@@ -165,9 +168,13 @@ export async function generateTicketsPdf(
       const imgData = canvas.toDataURL("image/jpeg", 0.92);
       doc.addImage(imgData, "JPEG", 0, 0, pageW, pageH);
 
-      // We no longer overlay the QR code manually at hardcoded mm positions,
-      // as it causes alignment issues when text length varies.
-      // Scaling html2canvas to 3 ensures the captured QR is sharp enough for scanning.
+      // Overlay QR code directly as PNG for maximum sharpness and scanability
+      if (qrDataUrl) {
+        const qrSizeMm = 52.9; // Matches 200px at high res
+        const qrXMm = (pageW - qrSizeMm) / 2;
+        const qrYMm = 142.5; // Optimized Y position for the stabilized layout
+        doc.addImage(qrDataUrl, "PNG", qrXMm, qrYMm, qrSizeMm, qrSizeMm);
+      }
     } finally {
       document.body.removeChild(container);
     }
