@@ -99,7 +99,7 @@ const SubOrganizerRegister = () => {
         guest_count: 1,
         status: "valid",
         payment_status: "free",
-        qr_code: `SUB-${allocation.id.substring(0,4)}-${Math.random().toString(36).substring(2, 10).toUpperCase()}`
+        qr_code: null
       };
       const { data, error } = await supabase.rpc("book_tickets", { _tickets: [ticketData] });
       if (error) throw error;

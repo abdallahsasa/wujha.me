@@ -23,6 +23,7 @@ import { format } from "date-fns";
 import EventGuestList from "@/components/admin/EventGuestList";
 import EventLiveCheckin from "@/components/admin/EventLiveCheckin";
 import EventMediaTab from "@/components/admin/EventMediaTab";
+import EventQrPool from "@/components/admin/EventQrPool";
 import { uploadToCloudinary } from "@/lib/cloudinary";
 import CloudinaryUpload from "@/components/admin/CloudinaryUpload";
 
@@ -362,6 +363,7 @@ const EventForm = () => {
             <TabsTrigger value="details">Event Details</TabsTrigger>
             <TabsTrigger value="media">Media</TabsTrigger>
             <TabsTrigger value="tickets">Ticket Types</TabsTrigger>
+            <TabsTrigger value="qr-pool">QR Pool</TabsTrigger>
             <TabsTrigger value="guests">Guest List</TabsTrigger>
             <TabsTrigger value="checkin">Live Check-in</TabsTrigger>
           </TabsList>
@@ -612,6 +614,10 @@ const EventForm = () => {
                 )}
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="qr-pool">
+            <EventQrPool eventId={id!} />
           </TabsContent>
 
           <TabsContent value="guests">

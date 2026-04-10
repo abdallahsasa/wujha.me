@@ -186,7 +186,7 @@ export default function TicketSelectionModal({ open, onClose, event, ticketTypes
             guest_email: normalizedEmail || "",
             guest_birthday: birthday,
             guest_count: 1,
-            qr_code: isFree ? crypto.randomUUID() : null,
+            qr_code: null,
             status: isFree ? "valid" : "pending_payment",
             payment_status: isFree ? "free" : "pending",
             payment_method: null,
