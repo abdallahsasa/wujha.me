@@ -22,20 +22,31 @@ export default function EventQrPool({ eventId }: { eventId: string }) {
   const fetchStats = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase
-        .from("qr_code_pool")
-        .select("is_used", { count: "exact" })
-        .eq("event_id", eventId);
+      const [{ count: total, error: totalErr }, { count: used, error: usedErr }] = await Promise.all([
+        supabase
+          .from("qr_code_pool")
+          .select("*", { count: "exact", head: true })
+          .eq("event_id", eventId),
+        supabase
+          .from("qr_code_pool")
+          .select("*", { count: "exact", head: true })
+          .eq("event_id", eventId)
+          .eq("is_used", true)
+      ]);
 
-      if (error) throw error;
+      if (totalErr) throw totalErr;
+      if (usedErr) throw usedErr;
 
-      const total = data.length;
-      const used = data.filter(d => d.is_used).length;
-      const remaining = total - used;
-
-      setStats({ total, used, remaining });
+      const tCount = total || 0;
+      const uCount = used || 0;
+      setStats({ 
+        total: tCount, 
+        used: uCount, 
+        remaining: tCount - uCount 
+      });
     } catch (err: any) {
       console.error("Error fetching pool stats:", err);
+      toast({ title: "Error", description: "Failed to load pool statistics", variant: "destructive" });
     } finally {
       setLoading(false);
     }
@@ -71,7 +82,8 @@ export default function EventQrPool({ eventId }: { eventId: string }) {
         .from("qr_code_pool")
         .select("code, is_used, created_at")
         .eq("event_id", eventId)
-        .order("created_at", { ascending: false });
+        .order("created_at", { ascending: false })
+        .limit(10000);
 
       if (error) throw error;
       if (!data || data.length === 0) {
