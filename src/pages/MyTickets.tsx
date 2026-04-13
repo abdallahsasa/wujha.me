@@ -18,7 +18,7 @@ type TicketWithDetails = {
   created_at: string;
   payment_status: string;
   seating_area?: string | null;
-  events: { id: string; title_ar: string; start_date: string; cover_image: string | null; venues: { name_ar: string } | null } | null;
+  events: { id: string; title_ar: string; start_date: string; doors_open?: string | null; cover_image: string | null; venues: { name_ar: string } | null } | null;
   ticket_types: { name_ar: string; price: number; currency: string } | null;
 };
 
@@ -65,6 +65,7 @@ export default function MyTickets() {
             id: t.event_id,
             title_ar: t.event_title_ar,
             start_date: t.event_start_date,
+            doors_open: t.event_doors_open,
             cover_image: t.event_cover_image,
             venues: t.venue_name_ar ? { name_ar: t.venue_name_ar } : null,
           },
@@ -98,6 +99,7 @@ export default function MyTickets() {
               id: t.event_id,
               title_ar: t.event_title_ar,
               start_date: t.event_start_date,
+              doors_open: t.event_doors_open,
               cover_image: t.event_cover_image,
               venues: t.venue_name_ar ? { name_ar: t.venue_name_ar } : null,
             },
@@ -112,7 +114,7 @@ export default function MyTickets() {
           // Final fallback to RLS-based query
           const { data } = await supabase
             .from("tickets")
-            .select("id, status, payment_status, qr_code, guest_name, guest_count, seating_area, checked_in_at, created_at, events(id, title_ar, start_date, cover_image, venues(name_ar)), ticket_types(name_ar, price, currency)")
+            .select("id, status, payment_status, qr_code, guest_name, guest_count, seating_area, checked_in_at, created_at, events(id, title_ar, start_date, doors_open, cover_image, venues(name_ar)), ticket_types(name_ar, price, currency)")
             .order("created_at", { ascending: false });
           setTickets((data as unknown as TicketWithDetails[]) || []);
         }
@@ -182,6 +184,12 @@ export default function MyTickets() {
                         <div className="flex items-center gap-2">
                           <Calendar className="h-3.5 w-3.5" />
                           <span>{formatDate(ticket.events.start_date)}</span>
+                        </div>
+                      )}
+                      {ticket.events?.doors_open && (
+                        <div className="flex items-center gap-2">
+                          <Clock className="h-3.5 w-3.5" />
+                          <span>الأبواب تفتح: {format(new Date(ticket.events.doors_open), "HH:mm", { locale: ar })}</span>
                         </div>
                       )}
                       {ticket.events?.venues && (

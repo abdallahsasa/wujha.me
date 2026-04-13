@@ -364,7 +364,7 @@ export default function EventDetail() {
             )}
 
             {/* ── Accordions ── */}
-            <Accordion type="multiple" className="mb-8">
+            <Accordion type="multiple" className="mb-8" defaultValue={["info", "directions"]}>
               {hasEventInfo && (
                 <AccordionItem value="info" className="border border-[hsl(var(--wujha-border))] rounded-xl mb-3 px-4 overflow-hidden">
                   <AccordionTrigger className="hover:no-underline text-base font-bold">معلومات الفعالية</AccordionTrigger>

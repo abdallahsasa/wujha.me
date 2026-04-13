@@ -254,7 +254,7 @@ const SubOrganizerRegister = () => {
               </div>
             )}
 
-            <Accordion type="multiple" className="mb-12">
+            <Accordion type="multiple" className="mb-12" defaultValue={["info", "loc"]}>
               {hasEventInfo && (
                 <AccordionItem value="info" className="border border-wujha-border rounded-2xl mb-4 px-6 overflow-hidden">
                   <AccordionTrigger className="hover:no-underline font-bold">معلومات إضافية</AccordionTrigger>

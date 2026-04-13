@@ -25,6 +25,7 @@ interface TicketData {
     event_code: string | null;
     start_date: string;
     end_date: string | null;
+    doors_open?: string | null;
     cover_image: string | null;
     venues: { name_ar: string; address_ar: string } | null;
   };
@@ -72,6 +73,7 @@ export default function EventConfirmation() {
           event_code: t.event_code,
           start_date: t.event_start_date,
           end_date: t.event_end_date,
+          doors_open: t.event_doors_open,
           cover_image: t.event_cover_image,
           venues: t.venue_name_ar ? { name_ar: t.venue_name_ar, address_ar: t.venue_address_ar } : null,
         },
@@ -88,7 +90,7 @@ export default function EventConfirmation() {
     const ev = tickets[0].events;
     await generateTicketsPdf(
       tickets.map((t, i) => ({ qr_code: t.qr_code, guest_name: t.guest_name, ticket_code: t.ticket_code || undefined, index: i + 1, total: tickets.length })),
-      { title_ar: ev.title_ar, event_code: ev.event_code || undefined, start_date: ev.start_date, venue_name: ev.venues?.name_ar, venue_address: ev.venues?.address_ar },
+      { title_ar: ev.title_ar, event_code: ev.event_code || undefined, start_date: ev.start_date, venue_name: ev.venues?.name_ar, venue_address: ev.venues?.address_ar, doors_open: ev.doors_open || undefined },
     );
   };
 
@@ -185,6 +187,12 @@ export default function EventConfirmation() {
             <div className="space-y-2 text-sm">
               <div className="flex items-center gap-2 text-amber-400/90"><Calendar className="h-4 w-4 shrink-0" /><bdi>{format(startDate, "EEEE d MMMM yyyy", { locale: ar })}</bdi></div>
               <div className="flex items-center gap-2 text-amber-400/90"><Clock className="h-4 w-4 shrink-0" /><bdi>{format(startDate, "h:mm a", { locale: ar })}</bdi></div>
+              {event.doors_open && (
+                <div className="flex items-center gap-2 text-amber-400/90">
+                  <Clock className="h-4 w-4 shrink-0" />
+                  <bdi>الأبواب تفتح: {format(new Date(event.doors_open), "h:mm a", { locale: ar })}</bdi>
+                </div>
+              )}
               {event.venues && <div className="flex items-center gap-2 text-amber-400/90"><MapPin className="h-4 w-4 shrink-0" /><span>{event.venues.name_ar}</span></div>}
             </div>
           </div>
