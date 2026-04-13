@@ -143,7 +143,7 @@ export default function Index() {
       {loading ? (
         <section className="mx-auto max-w-[1400px] px-4 md:px-6 pt-6">
           <Skeleton className="h-8 w-64 mb-5" />
-          <Skeleton className="h-[200px] sm:h-[300px] md:h-[500px] w-full rounded-2xl" />
+          <Skeleton className="h-[500px] sm:h-[300px] md:h-[500px] w-full rounded-2xl" />
         </section>
       ) : featuredEvents.length > 0 ? (
         <section className="mx-auto max-w-[1400px] px-4 md:px-6 pt-6">
