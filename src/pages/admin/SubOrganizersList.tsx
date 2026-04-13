@@ -192,6 +192,18 @@ const SubOrganizersList = () => {
     setCreateOpen(false);
   };
 
+  const deleteSubOrganizer = async (id: string, name: string) => {
+    if (!window.confirm(`Are you sure you want to completely delete ${name}? This will remove their profile and all their allocations.`)) return;
+    
+    const { error } = await supabase.from("admin_users").delete().eq("id", id);
+    if (error) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: "Sub-Organizer deleted" });
+      fetchData();
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -302,9 +314,14 @@ const SubOrganizersList = () => {
                         </div>
                       </TableCell>
                       <TableCell className="text-right">
-                        <Button variant="outline" size="sm" onClick={() => openAllocate(person)} className="hover:bg-primary hover:text-primary-foreground">
-                          <Ticket className="h-3 w-3 mr-2" /> Allocate Tickets
-                        </Button>
+                        <div className="flex justify-end gap-2">
+                          <Button variant="outline" size="sm" onClick={() => openAllocate(person)} className="hover:bg-primary hover:text-primary-foreground">
+                            <Ticket className="h-3 w-3 mr-2" /> Allocate
+                          </Button>
+                          <Button variant="ghost" size="sm" onClick={() => deleteSubOrganizer(person.id, person.name)} className="text-destructive hover:bg-destructive/10 hover:text-destructive">
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))}
