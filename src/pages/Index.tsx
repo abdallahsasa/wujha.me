@@ -143,7 +143,7 @@ export default function Index() {
       {loading ? (
         <section className="mx-auto max-w-[1400px] px-4 md:px-6 pt-6">
           <Skeleton className="h-8 w-64 mb-5" />
-          <Skeleton className="h-[200px] sm:h-[300px] md:h-[400px] w-full rounded-2xl" />
+          <Skeleton className="h-[200px] sm:h-[300px] md:h-[500px] w-full rounded-2xl" />
         </section>
       ) : featuredEvents.length > 0 ? (
         <section className="mx-auto max-w-[1400px] px-4 md:px-6 pt-6">
@@ -172,15 +172,13 @@ export default function Index() {
               { key: "this_week" as DateFilter, label: "هذا الأسبوع" },
             ].map(f => (
               <button key={f.key} onClick={() => { setDateFilter(f.key); setCustomDate(undefined); }}
-                className={`shrink-0 rounded-full px-4 py-1.5 text-sm font-medium border transition ${
-                  dateFilter === f.key ? "border-wujha-text bg-wujha-text text-white" : "border-wujha-border bg-transparent text-wujha-text-muted hover:border-wujha-text-muted"
-                }`}>{f.label}</button>
+                className={`shrink-0 rounded-full px-4 py-1.5 text-sm font-medium border transition ${dateFilter === f.key ? "border-wujha-text bg-wujha-text text-white" : "border-wujha-border bg-transparent text-wujha-text-muted hover:border-wujha-text-muted"
+                  }`}>{f.label}</button>
             ))}
             <Popover>
               <PopoverTrigger asChild>
-                <button className={`shrink-0 rounded-full p-2 border transition ${
-                  dateFilter === "custom" ? "border-wujha-text bg-wujha-text text-white" : "border-wujha-border bg-transparent text-wujha-text-muted hover:border-wujha-text-muted"
-                }`}><CalendarIcon className="h-4 w-4" /></button>
+                <button className={`shrink-0 rounded-full p-2 border transition ${dateFilter === "custom" ? "border-wujha-text bg-wujha-text text-white" : "border-wujha-border bg-transparent text-wujha-text-muted hover:border-wujha-text-muted"
+                  }`}><CalendarIcon className="h-4 w-4" /></button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0" align="end">
                 <Calendar mode="single" selected={customDate} onSelect={(date) => { setCustomDate(date); if (date) setDateFilter("custom"); else setDateFilter("all"); }} initialFocus className="p-3 pointer-events-auto" />
