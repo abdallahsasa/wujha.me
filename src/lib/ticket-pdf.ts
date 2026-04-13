@@ -106,10 +106,10 @@ export async function generateTicketsPdf(
     let timeStr = "";
     if (event.start_date) {
       const date = new Date(event.start_date);
-      dateStr = date.toLocaleDateString("ar-SA", {
+      dateStr = date.toLocaleDateString("ar-SA-u-ca-gregory", {
         weekday: "long", year: "numeric", month: "long", day: "numeric",
       });
-      timeStr = date.toLocaleTimeString("ar-SA", { hour: "2-digit", minute: "2-digit" });
+      timeStr = date.toLocaleTimeString("ar-SA-u-ca-gregory", { hour: "2-digit", minute: "2-digit" });
     }
 
     const container = document.createElement("div");
@@ -136,7 +136,7 @@ export async function generateTicketsPdf(
             ${escapeHtml(event.title_ar)}
           </div>
           ${dateStr ? `<div style="font-size:18px;color:#c8c8c8;margin-bottom:6px;">${escapeHtml(dateStr)}  •  ${escapeHtml(timeStr)}</div>` : ""}
-          ${event.doors_open ? `<div style="font-size:16px;color:#b4b4b4;margin-bottom:6px;">الأبواب تفتح: ${escapeHtml(new Date(event.doors_open).toLocaleTimeString("ar-SA", { hour: "2-digit", minute: "2-digit" }))}</div>` : ""}
+          ${event.doors_open ? `<div style="font-size:16px;color:#b4b4b4;margin-bottom:6px;">الأبواب تفتح: ${escapeHtml(new Date(event.doors_open).toLocaleTimeString("ar-SA-u-ca-gregory", { hour: "2-digit", minute: "2-digit" }))}</div>` : ""}
           ${event.venue_name ? `<div style="font-size:18px;color:#c8c8c8;margin-bottom:10px;">${escapeHtml(event.venue_name)}</div>` : ""}
         </div>
         <div style="border-top:2px dashed #505050;margin:24px 30px;"></div>
