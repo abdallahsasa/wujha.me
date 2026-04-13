@@ -50,7 +50,7 @@ export default function HeroCarousel({ events }: HeroCarouselProps) {
         <div className="flex">
           {events.map((ev) => (
             <div key={ev.id} className="relative shrink-0" style={{ flex: "0 0 100%", minWidth: 0 }}>
-              <Link to={`/events/${ev.slug || ev.id}`} className="block w-full h-[200px] sm:h-[300px] md:h-[400px] lg:h-[450px] rounded-[18px] overflow-hidden">
+              <Link to={`/events/${ev.slug || ev.id}`} className="block w-full h-[200px] sm:h-[300px] md:h-[500px] lg:h-[500px] rounded-[18px] overflow-hidden">
                 {ev.hero_video ? (
                   <video src={ev.hero_video} poster={thumbnailUrl(ev.hero_thumbnail || ev.cover_image || "") || "/placeholder.svg"}
                     autoPlay muted loop playsInline
