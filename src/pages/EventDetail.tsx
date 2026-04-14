@@ -12,6 +12,8 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import {
+  Calendar, MapPin, Clock, Phone, Copy, Play, X as XIcon,
+  MessageCircle, Facebook, ChevronLeft, ChevronRight, Heart,
   Shield, Zap, CheckCircle, Headphones, Share2, DoorOpen, Layout, Plus, Maximize,
 } from "lucide-react";
 import { format } from "date-fns";
