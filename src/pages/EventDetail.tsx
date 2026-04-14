@@ -12,9 +12,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import {
-  Calendar, MapPin, Clock, Phone, Copy, Play, X as XIcon,
-  MessageCircle, Facebook, ChevronLeft, ChevronRight, Heart,
-  Shield, Zap, CheckCircle, Headphones, Share2, DoorOpen,
+  Shield, Zap, CheckCircle, Headphones, Share2, DoorOpen, Layout, Plus, Maximize,
 } from "lucide-react";
 import { format } from "date-fns";
 import { ar } from "date-fns/locale";
@@ -81,6 +79,9 @@ export default function EventDetail() {
   const [isFavorite, setIsFavorite] = useState(false);
   const [videoLightbox, setVideoLightbox] = useState(false);
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+
+  const images = useMemo(() => event?.images || [], [event?.images]);
 
   const relatedScrollRef = useRef<HTMLDivElement>(null);
 
@@ -187,6 +188,29 @@ export default function EventDetail() {
     const amount = dir === "left" ? -280 : 280;
     relatedScrollRef.current.scrollBy({ left: amount, behavior: "smooth" });
   };
+
+  const handlePrevImage = (e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    if (lightboxIndex === null || images.length === 0) return;
+    setLightboxIndex((lightboxIndex - 1 + images.length) % images.length);
+  };
+
+  const handleNextImage = (e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    if (lightboxIndex === null || images.length === 0) return;
+    setLightboxIndex((lightboxIndex + 1) % images.length);
+  };
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (lightboxIndex === null) return;
+      if (e.key === "Escape") setLightboxIndex(null);
+      if (e.key === "ArrowLeft") handleNextImage();
+      if (e.key === "ArrowRight") handlePrevImage();
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [lightboxIndex, images.length]);
 
   const minPriceLabel = useMemo(() => formatMinPrice(ticketTypes), [ticketTypes, formatMinPrice]);
   const isFree = event?.is_free ?? false;
@@ -351,14 +375,38 @@ export default function EventDetail() {
             </div>
 
             {/* ── Gallery ── */}
-            {Array.isArray(event.images) && event.images.length > 0 && (
-              <div className="mb-8">
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                  {(event.images as string[]).map((img, i) => (
-                    <div key={i} className="aspect-video rounded-xl overflow-hidden">
-                      <img src={galleryUrl(img)} alt={`${event.title_ar} ${i + 1}`} className="h-full w-full object-cover hover:scale-105 transition-transform duration-300" />
-                    </div>
-                  ))}
+            {images.length > 0 && (
+              <div className="mb-10">
+                <h2 className="text-xl font-bold mb-5 flex items-center gap-2">
+                  <Layout className="h-5 w-5 text-[hsl(var(--wujha-accent))]" />
+                  المعرض
+                </h2>
+                <div className={`grid gap-3 transition-all duration-500 ${
+                  images.length === 1 ? "grid-cols-1" :
+                  images.length === 2 ? "grid-cols-2" :
+                  "grid-cols-2 md:grid-cols-3"
+                }`}>
+                  {images.map((img, i) => {
+                    const isFeatured = images.length >= 3 && i === 0;
+                    return (
+                      <button
+                        key={i}
+                        onClick={() => setLightboxIndex(i)}
+                        className={`group relative overflow-hidden rounded-2xl bg-gray-100 transition-all hover:shadow-lg ${
+                          isFeatured ? "col-span-2 md:col-span-2 md:row-span-2 aspect-[4/3] md:aspect-auto" : "aspect-square md:aspect-video"
+                        }`}
+                      >
+                        <img
+                          src={galleryUrl(img)}
+                          alt={`${event.title_ar} ${i + 1}`}
+                          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                        />
+                        <div className="absolute inset-0 bg-black/0 transition-colors group-hover:bg-black/10 flex items-center justify-center">
+                          <Plus className="h-8 w-8 text-white opacity-0 transition-opacity group-hover:opacity-100" />
+                        </div>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             )}
@@ -528,6 +576,44 @@ export default function EventDetail() {
 
       <LoginModal open={loginOpen} onClose={() => setLoginOpen(false)} context={loginContext} />
       <TicketSelectionModal open={ticketModalOpen} onClose={() => setTicketModalOpen(false)} event={event} ticketTypes={ticketTypes} isLoggedIn={isLoggedIn} publicUser={publicUser} guestUser={guestUser} />
+
+      {/* ═══ IMAGE LIGHTBOX ═══ */}
+      {lightboxIndex !== null && images.length > 0 && (
+        <div className="fixed inset-0 z-[110] bg-black/95 flex items-center justify-center animate-in fade-in duration-300" onClick={() => setLightboxIndex(null)}>
+          <button className="absolute top-6 left-6 text-white/70 hover:text-white transition-colors" onClick={() => setLightboxIndex(null)}>
+            <XIcon className="h-8 w-8" />
+          </button>
+          
+          <div className="relative w-full max-w-5xl h-[80vh] flex items-center justify-center p-4 md:p-12" onClick={e => e.stopPropagation()}>
+            <img
+              src={galleryUrl(images[lightboxIndex])}
+              alt=""
+              className="max-h-full max-w-full object-contain rounded-lg shadow-2xl animate-in zoom-in-95 duration-300"
+            />
+            
+            {images.length > 1 && (
+              <>
+                <button 
+                  onClick={handleNextImage} 
+                  className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-all backdrop-blur-md"
+                >
+                  <ChevronLeft className="h-6 w-6" />
+                </button>
+                <button 
+                  onClick={handlePrevImage} 
+                  className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-all backdrop-blur-md"
+                >
+                  <ChevronRight className="h-6 w-6" />
+                </button>
+              </>
+            )}
+            
+            <div className="absolute bottom-[-40px] left-1/2 -translate-x-1/2 text-white/60 text-sm font-medium bg-black/40 px-4 py-2 rounded-full backdrop-blur-sm">
+              {lightboxIndex + 1} / {images.length}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
