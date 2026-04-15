@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useMemo } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { supabase } from "@/integrations/supabase/client";
@@ -9,7 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { 
   Loader2, Calendar, MapPin, User, Phone, Mail, AlertTriangle, CheckCircle2, Layout,
   Clock, Share2, Shield, Zap, Headphones,
-  Play, X as XIcon
+  Play, X as XIcon, ChevronLeft, ChevronRight, Plus, Maximize,
 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -44,6 +44,9 @@ const SubOrganizerRegister = () => {
   const [allocation, setAllocation] = useState<any>(null);
   const [event, setEvent] = useState<any>(null);
   const [videoLightbox, setVideoLightbox] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+
+  const images = useMemo(() => event?.images || [], [event?.images]);
 
   const form = useForm<z.infer<typeof registerSchema>>({
     resolver: zodResolver(registerSchema),
@@ -130,6 +133,29 @@ const SubOrganizerRegister = () => {
       setSubmitting(false);
     }
   };
+
+  const handlePrevImage = (e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    if (lightboxIndex === null || images.length === 0) return;
+    setLightboxIndex((lightboxIndex - 1 + images.length) % images.length);
+  };
+
+  const handleNextImage = (e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    if (lightboxIndex === null || images.length === 0) return;
+    setLightboxIndex((lightboxIndex + 1) % images.length);
+  };
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (lightboxIndex === null) return;
+      if (e.key === "Escape") setLightboxIndex(null);
+      if (e.key === "ArrowLeft") handleNextImage();
+      if (e.key === "ArrowRight") handlePrevImage();
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [lightboxIndex, images.length]);
 
   if (loading) return <div className="min-h-screen flex items-center justify-center bg-white"><Loader2 className="h-8 w-8 text-wujha-accent animate-spin" /></div>;
   if (!allocation || !event) return <div className="min-h-screen flex items-center justify-center bg-white p-4 text-center"><div className="max-w-md space-y-6"><AlertTriangle className="h-10 w-10 text-red-500 mx-auto" /><h1 className="text-2xl font-bold">الرابط غير صالح</h1><Button asChild className="w-full bg-wujha-accent"><Link to="/">العودة للرئيسية</Link></Button></div></div>;
@@ -244,13 +270,40 @@ const SubOrganizerRegister = () => {
 
             <div className="prose prose-zinc prose-sm max-w-none text-gray-600 leading-[1.8] mb-12 whitespace-pre-wrap">{event.description_ar}</div>
 
-            {Array.isArray(event.images) && event.images.length > 0 && (
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-12">
-                {event.images.map((img: string, i: number) => (
-                  <div key={i} className="aspect-video rounded-2xl overflow-hidden hover:shadow-lg transition">
-                    <img src={galleryUrl(img)} alt={event.title_ar} className="h-full w-full object-cover transition-transform hover:scale-110" />
-                  </div>
-                ))}
+            {/* ── Gallery ── */}
+            {images.length > 0 && (
+              <div className="mb-12">
+                <h2 className="text-xl font-bold mb-5 flex items-center gap-2">
+                  <Layout className="h-5 w-5 text-wujha-accent" />
+                  المعرض
+                </h2>
+                <div className={`grid gap-3 transition-all duration-500 ${
+                  images.length === 1 ? "grid-cols-1" :
+                  images.length === 2 ? "grid-cols-2" :
+                  "grid-cols-2 md:grid-cols-3"
+                }`}>
+                  {images.map((img: string, i: number) => {
+                    const isFeatured = images.length >= 3 && i === 0;
+                    return (
+                      <button
+                        key={i}
+                        onClick={() => setLightboxIndex(i)}
+                        className={`group relative overflow-hidden rounded-2xl bg-gray-100 transition-all hover:shadow-lg ${
+                          isFeatured ? "col-span-2 md:col-span-2 md:row-span-2 aspect-[4/3] md:aspect-auto" : "aspect-square md:aspect-video"
+                        }`}
+                      >
+                        <img
+                          src={galleryUrl(img)}
+                          alt={`${event.title_ar} ${i + 1}`}
+                          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                        />
+                        <div className="absolute inset-0 bg-black/0 transition-colors group-hover:bg-black/10 flex items-center justify-center">
+                          <Plus className="h-8 w-8 text-white opacity-0 transition-opacity group-hover:opacity-100" />
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
             )}
 
@@ -295,6 +348,45 @@ const SubOrganizerRegister = () => {
           </div>
         </div>
       </div>
+      </div>
+      
+      {/* ═══ IMAGE LIGHTBOX ═══ */}
+      {lightboxIndex !== null && images.length > 0 && (
+        <div className="fixed inset-0 z-[110] bg-black/95 flex items-center justify-center animate-in fade-in duration-300" onClick={() => setLightboxIndex(null)}>
+          <button className="absolute top-6 left-6 text-white/70 hover:text-white transition-colors" onClick={() => setLightboxIndex(null)}>
+            <XIcon className="h-8 w-8" />
+          </button>
+          
+          <div className="relative w-full max-w-5xl h-[80vh] flex items-center justify-center p-4 md:p-12" onClick={e => e.stopPropagation()}>
+            <img
+              src={galleryUrl(images[lightboxIndex])}
+              alt=""
+              className="max-h-full max-w-full object-contain rounded-lg shadow-2xl animate-in zoom-in-95 duration-300"
+            />
+            
+            {images.length > 1 && (
+              <>
+                <button 
+                  onClick={handleNextImage} 
+                  className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-all backdrop-blur-md"
+                >
+                  <ChevronLeft className="h-6 w-6" />
+                </button>
+                <button 
+                  onClick={handlePrevImage} 
+                  className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-all backdrop-blur-md"
+                >
+                  <ChevronRight className="h-6 w-6" />
+                </button>
+              </>
+            )}
+            
+            <div className="absolute bottom-[-40px] left-1/2 -translate-x-1/2 text-white/60 text-sm font-medium bg-black/40 px-4 py-2 rounded-full backdrop-blur-sm">
+              {lightboxIndex + 1} / {images.length}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
