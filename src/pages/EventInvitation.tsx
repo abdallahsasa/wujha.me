@@ -25,6 +25,7 @@ interface EventData {
   venue_id: string | null;
   venues?: { name_ar: string; address_ar: string } | null;
   cities?: { name_ar: string } | null;
+  terms_ar?: string;
 }
 
 export default function EventInvitation() {
@@ -188,6 +189,7 @@ export default function EventInvitation() {
               ticketCount: ticketQty,
               confirmationUrl: `${baseUrl}/invite/${eventId}/confirmation/${ticketData[0].id}`,
               coverImage: event.cover_image || "",
+              eventTerms: event.terms_ar,
             },
           },
         }).catch(console.error);

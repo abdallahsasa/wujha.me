@@ -22,7 +22,7 @@ type PublicUser = {
 type Props = {
   open: boolean;
   onClose: () => void;
-  event: { id: string; title_ar: string; is_free: boolean; currency: string } | null;
+  event: { id: string; title_ar: string; is_free: boolean; currency: string; terms_ar?: string } | null;
   ticketTypes: TicketType[];
   isLoggedIn: boolean;
   publicUser?: PublicUser | null;
@@ -224,6 +224,7 @@ export default function TicketSelectionModal({ open, onClose, event, ticketTypes
               eventTitle: event.title_ar,
               ticketCount: totalItems,
               confirmationUrl: `${baseUrl}/invite/${event.id}/confirmation/${ticketData[0].id}`,
+              eventTerms: event.terms_ar,
             },
           },
         }).catch(console.error);

@@ -15,6 +15,7 @@ interface TicketConfirmationProps {
   ticketCount?: number
   confirmationUrl?: string
   coverImage?: string
+  eventTerms?: string
 }
 
 const TicketConfirmationEmail = ({
@@ -24,8 +25,10 @@ const TicketConfirmationEmail = ({
   eventTime,
   venueName,
   ticketCount,
+  ticketCount,
   confirmationUrl,
   coverImage,
+  eventTerms,
 }: TicketConfirmationProps) => (
   <Html lang="ar" dir="rtl">
     <Head>
@@ -83,6 +86,15 @@ const TicketConfirmationEmail = ({
           </Section>
         )}
 
+        {/* Terms & Conditions */}
+        {eventTerms && (
+          <Section style={bodySection}>
+            <Hr style={dividerSmall} />
+            <Text style={termsHeading}>{"\u0627\u0644\u0634\u0631\u0648\u0637 \u0648\u0627\u0644\u0623\u062d\u0643\u0627\u0645"}</Text>
+            <Text style={termsText}>{eventTerms}</Text>
+          </Section>
+        )}
+
         <Hr style={divider} />
 
         {/* Footer */}
@@ -112,6 +124,7 @@ export const template = {
     ticketCount: 2,
     confirmationUrl: 'https://wujha.me/invite/123/confirmation/456',
     coverImage: '',
+    eventTerms: 'يرجى إبراز التذكرة عند الدخول. العمر المسموح ١٨+ سنة.',
   },
 } satisfies TemplateEntry
 
@@ -142,6 +155,9 @@ const ctaButton = {
   textDecoration: 'none',
   display: 'inline-block',
 }
+const termsHeading = { fontSize: '14px', fontWeight: 'bold', color: '#1a1a1a', margin: '16px 0 8px' }
+const termsText = { fontSize: '13px', color: '#6b7280', lineHeight: '1.6', margin: '0', whiteSpace: 'pre-wrap' as const }
+const dividerSmall = { borderColor: '#f3f4f6', margin: '0 0 16px' }
 const footerSection = { textAlign: 'center' as const, padding: '20px 0 30px' }
 const footerText = { fontSize: '12px', color: '#9ca3af', margin: '0' }
 const footerBrand = { color: '#d97706' }

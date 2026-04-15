@@ -120,6 +120,7 @@ const SubOrganizerRegister = () => {
               eventTitle: event.title_ar,
               ticketCount: 1,
               confirmationUrl: `${baseUrl}/invite/${allocation.event_id}/confirmation/${data[0]?.id}`,
+              eventTerms: event.terms_ar,
             },
           },
         }).catch(console.error);
@@ -347,7 +348,6 @@ const SubOrganizerRegister = () => {
             </div>
           </div>
         </div>
-      </div>
       </div>
       
       {/* ═══ IMAGE LIGHTBOX ═══ */}

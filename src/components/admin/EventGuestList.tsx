@@ -68,10 +68,9 @@ export default function EventGuestList({ eventId }: { eventId: string }) {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<FilterMode>("all");
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const [eventTerms, setEventTerms] = useState<string>("");
 
-  const fetchData = useCallback(async () => {
-    setLoading(true);
-    const [ticketsRes, typesRes] = await Promise.all([
+    const [ticketsRes, typesRes, eventRes] = await Promise.all([
       supabase
         .from("tickets")
         .select("id, guest_name, guest_phone, guest_email, status, payment_status, payment_method, payment_reference, payment_amount, checked_in_at, created_at, qr_code, ticket_code, ticket_type_id")
@@ -81,9 +80,15 @@ export default function EventGuestList({ eventId }: { eventId: string }) {
         .from("ticket_types")
         .select("id, name_ar")
         .eq("event_id", eventId),
+      supabase
+        .from("events")
+        .select("terms_ar")
+        .eq("id", eventId)
+        .single(),
     ]);
     if (ticketsRes.data) setTickets(ticketsRes.data as Ticket[]);
     if (typesRes.data) setTicketTypes(typesRes.data as TicketType[]);
+    if (eventRes.data) setEventTerms(eventRes.data.terms_ar || "");
     setLoading(false);
   }, [eventId]);
 
@@ -185,6 +190,7 @@ export default function EventGuestList({ eventId }: { eventId: string }) {
             guestName: group.guest_name,
             ticketCount: group.quantity,
             confirmationUrl: `${window.location.origin}/invite/${eventId}/confirmation/${group.ticketIds[0]}`,
+            eventTerms: eventTerms,
           },
         };
         console.log("=== SENDING APPROVAL EMAIL ===", JSON.stringify(emailPayload, null, 2));
