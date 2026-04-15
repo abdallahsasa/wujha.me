@@ -28,6 +28,7 @@ interface TicketData {
     doors_open?: string | null;
     cover_image: string | null;
     venues: { name_ar: string; address_ar: string } | null;
+    terms_ar: string | null;
   };
 }
 
@@ -76,6 +77,7 @@ export default function EventConfirmation() {
           doors_open: t.event_doors_open,
           cover_image: t.event_cover_image,
           venues: t.venue_name_ar ? { name_ar: t.venue_name_ar, address_ar: t.venue_address_ar } : null,
+          terms_ar: t.event_terms_ar,
         },
       }));
       setTickets(mapped);
@@ -90,7 +92,7 @@ export default function EventConfirmation() {
     const ev = tickets[0].events;
     await generateTicketsPdf(
       tickets.map((t, i) => ({ qr_code: t.qr_code, guest_name: t.guest_name, ticket_code: t.ticket_code || undefined, index: i + 1, total: tickets.length })),
-      { title_ar: ev.title_ar, event_code: ev.event_code || undefined, start_date: ev.start_date, venue_name: ev.venues?.name_ar, venue_address: ev.venues?.address_ar, doors_open: ev.doors_open || undefined },
+      { title_ar: ev.title_ar, event_code: ev.event_code || undefined, start_date: ev.start_date, venue_name: ev.venues?.name_ar, venue_address: ev.venues?.address_ar, doors_open: ev.doors_open || undefined, terms_ar: ev.terms_ar || undefined },
     );
   };
 
@@ -233,6 +235,13 @@ export default function EventConfirmation() {
             </div>
           </div>
         ))}
+
+        {event.terms_ar && (
+          <div className="bg-white/[0.04] border border-white/10 rounded-2xl p-5 mb-4">
+            <h3 className="text-sm font-bold text-amber-500 mb-3">الشروط والأحكام / Terms & Conditions</h3>
+            <p className="text-xs text-gray-400 leading-relaxed whitespace-pre-wrap">{event.terms_ar}</p>
+          </div>
+        )}
 
         <div className="mt-6 space-y-3">
           {isConfirmed && hasQr && (

@@ -17,6 +17,7 @@ interface EventForPdf {
   venue_name?: string;
   venue_address?: string;
   doors_open?: string;
+  terms_ar?: string;
 }
 
 /**
@@ -152,6 +153,14 @@ export async function generateTicketsPdf(
           Show this QR code at the entrance
         </div>
       </div>
+      
+      ${event.terms_ar ? `
+        <div style="margin:20px 80px 0;padding:15px;background:rgba(255,160,0,0.05);border:1px solid rgba(255,160,0,0.2);border-radius:12px;">
+          <div style="font-size:12px;font-weight:bold;color:#f59e0b;margin-bottom:6px;">الشروط والأحكام / Terms & Conditions</div>
+          <div style="font-size:10px;color:#888;line-height:1.5;white-space:pre-wrap;">${escapeHtml(event.terms_ar)}</div>
+        </div>
+      ` : ""}
+
       <div style="text-align:center;position:absolute;bottom:50px;width:100%;font-size:14px;color:#646464;">
         Powered by WUJHA
       </div>
