@@ -17,11 +17,8 @@ export function getPlaceShareUrl(placeId: string): string {
   return `${PUBLIC_DOMAIN}/places/${placeId}`;
 }
 
-const SUPABASE_PROJECT_URL = "https://pvukxnglbickupnjwphf.supabase.co";
-
 export function getRegisterShareUrl(subSlug: string): string {
-  // Use the og-meta edge function to provide a rich social preview
-  return `${SUPABASE_PROJECT_URL}/functions/v1/og-meta/register/${subSlug}`;
+  return `${PUBLIC_DOMAIN}/event/register/${subSlug}`;
 }
 
 /** Aliases used by Helmet for og:url */
