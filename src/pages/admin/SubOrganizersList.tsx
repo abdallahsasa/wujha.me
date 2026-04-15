@@ -140,6 +140,8 @@ const SubOrganizersList = () => {
     setTicketTypes(data ?? []);
   };
 
+  const onAllocate = async (values: z.infer<typeof allocateSchema>) => {
+    if (!selectedStaff) return;
     const sanitize = (str: string) => str.trim().toLowerCase()
       .replace(/[^\u0600-\u06FFa-z0-9\s-]/g, "") // Remove special chars (like &)
       .replace(/[\s-]+/g, "-") // Collapse spaces/hyphens
