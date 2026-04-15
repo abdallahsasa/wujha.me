@@ -37,10 +37,11 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, CheckCircle2, HelpCircle, Ticket, Copy, Layout, UserPlus, Trash2 } from "lucide-react";
+import { Plus, CheckCircle2, HelpCircle, Ticket, Copy, Layout, UserPlus, Trash2, ExternalLink } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { getRegisterShareUrl } from "@/lib/share-urls";
 
 interface SubOrganizerRow {
   id: string;
@@ -97,7 +98,6 @@ const SubOrganizersList = () => {
 
   const fetchData = async () => {
     setLoading(true);
-    // Fetch all staff (admin_users with role scanner/admin for sub-organizer duties)
     const { data, error } = await supabase
       .from("admin_users")
       .select(`
@@ -143,9 +143,9 @@ const SubOrganizersList = () => {
   const onAllocate = async (values: z.infer<typeof allocateSchema>) => {
     if (!selectedStaff) return;
     const sanitize = (str: string) => str.trim().toLowerCase()
-      .replace(/[^\u0600-\u06FFa-z0-9\s-]/g, "") // Remove special chars (like &)
-      .replace(/[\s-]+/g, "-") // Collapse spaces/hyphens
-      .replace(/^-+|-+$/g, ""); // Remove leading/trailing hyphens
+      .replace(/[^\u0600-\u06FFa-z0-9\s-]/g, "")
+      .replace(/[\s-]+/g, "-")
+      .replace(/^-+|-+$/g, "");
 
     const nameSlug = sanitize(selectedStaff.name);
     const areaSlug = values.seating_area ? sanitize(values.seating_area) : "";
@@ -186,7 +186,7 @@ const SubOrganizersList = () => {
       name: values.name,
       email: values.email,
       phone: values.phone,
-      role: "sub_organizer", // Dedicated role for distributors
+      role: "sub_organizer",
       is_active: true
     }]);
 
@@ -294,7 +294,7 @@ const SubOrganizersList = () => {
                               <div className="flex items-center gap-3 mt-2 pt-2 border-t">
                                 <button 
                                   onClick={() => {
-                                    const link = `${window.location.origin}/event/register/${alloc.unique_slug}`;
+                                    const link = getRegisterShareUrl(alloc.unique_slug);
                                     navigator.clipboard.writeText(link);
                                     toast({ title: "Registration link copied" });
                                   }}
@@ -302,6 +302,14 @@ const SubOrganizersList = () => {
                                 >
                                   <Copy className="h-2.5 w-2.5" /> Copy Link
                                 </button>
+                                <a
+                                  href={`${window.location.origin}/event/register/${alloc.unique_slug}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-[10px] text-muted-foreground font-bold flex items-center gap-1 hover:underline"
+                                >
+                                  <ExternalLink className="h-2.5 w-2.5" /> View
+                                </a>
                                 {alloc.seating_area && (
                                   <span className="text-[10px] text-muted-foreground flex items-center gap-1 italic">
                                     <Layout className="h-2.5 w-2.5" /> {alloc.seating_area}

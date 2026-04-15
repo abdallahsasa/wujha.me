@@ -89,7 +89,7 @@ Deno.serve(async (req) => {
   // Parse the path after /og-meta/
   // Expected paths: /og-meta/events/:id, /og-meta/places/:id, /og-meta/invite/:id
   const pathParts = url.pathname.replace(/^\/og-meta\/?/, "").split("/").filter(Boolean);
-  const routeType = pathParts[0]; // events | places | invite
+  const routeType = pathParts[0]; // events | places | invite | register
   const itemId = pathParts[1];
 
   // Determine the app's base URL from the Referer or Origin, fallback to env
@@ -102,7 +102,11 @@ Deno.serve(async (req) => {
   // Build the canonical SPA URL for this content
   let spaPath = "/";
   if (routeType && itemId) {
-    spaPath = `/${routeType}/${itemId}`;
+    if (routeType === "register") {
+      spaPath = `/event/register/${itemId}`;
+    } else {
+      spaPath = `/${routeType}/${itemId}`;
+    }
   }
   const spaUrl = `${appBaseUrl.replace(/\/functions\/v1\/og-meta.*/, "")}${spaPath}`;
 
@@ -140,6 +144,33 @@ Deno.serve(async (req) => {
             title: data.title_ar,
             description: data.short_description_ar,
             image: data.cover_image || DEFAULT_IMAGE,
+            url: ogUrl,
+            redirectUrl: spaUrl,
+          }),
+          { headers: { "Content-Type": "text/html; charset=utf-8" } }
+        );
+      }
+    }
+    
+    if (routeType === "register" && itemId) {
+      const { data } = await supabase
+        .from("sub_organizer_allocations")
+        .select(`
+          unique_slug,
+          events (title_ar, short_description_ar, cover_image),
+          sub_organizers:admin_users (name)
+        `)
+        .eq("unique_slug", itemId)
+        .single();
+
+      if (data) {
+        const ev = data.events as any;
+        const subOrgName = (data as any).sub_organizers?.name || "";
+        return new Response(
+          buildOgHtml({
+            title: `وجهة | wujha - فعالية ${ev.title_ar} | ${subOrgName}`,
+            description: ev.short_description_ar || "سجّل الآن عبر هذا الرابط الحصري",
+            image: ev.cover_image || DEFAULT_IMAGE,
             url: ogUrl,
             redirectUrl: spaUrl,
           }),
