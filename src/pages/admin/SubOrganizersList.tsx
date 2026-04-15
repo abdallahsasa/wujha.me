@@ -140,10 +140,13 @@ const SubOrganizersList = () => {
     setTicketTypes(data ?? []);
   };
 
-  const onAllocate = async (values: z.infer<typeof allocateSchema>) => {
-    if (!selectedStaff) return;
-    const nameSlug = selectedStaff.name.trim().toLowerCase().replace(/\s+/g, "-");
-    const areaSlug = values.seating_area?.trim().toLowerCase().replace(/\s+/g, "-");
+    const sanitize = (str: string) => str.trim().toLowerCase()
+      .replace(/[^\u0600-\u06FFa-z0-9\s-]/g, "") // Remove special chars (like &)
+      .replace(/[\s-]+/g, "-") // Collapse spaces/hyphens
+      .replace(/^-+|-+$/g, ""); // Remove leading/trailing hyphens
+
+    const nameSlug = sanitize(selectedStaff.name);
+    const areaSlug = values.seating_area ? sanitize(values.seating_area) : "";
     const eventPrefix = values.event_id.slice(0, 4);
     const slug = `${eventPrefix}-${nameSlug}${areaSlug ? `-${areaSlug}` : ""}-${Math.random().toString(36).substring(2, 5)}`;
     

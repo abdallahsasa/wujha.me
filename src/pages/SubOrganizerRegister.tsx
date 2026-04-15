@@ -158,8 +158,35 @@ const SubOrganizerRegister = () => {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [lightboxIndex, images.length]);
 
-  if (loading) return <div className="min-h-screen flex items-center justify-center bg-white"><Loader2 className="h-8 w-8 text-wujha-accent animate-spin" /></div>;
-  if (!allocation || !event) return <div className="min-h-screen flex items-center justify-center bg-white p-4 text-center"><div className="max-w-md space-y-6"><AlertTriangle className="h-10 w-10 text-red-500 mx-auto" /><h1 className="text-2xl font-bold">الرابط غير صالح</h1><Button asChild className="w-full bg-wujha-accent"><Link to="/">العودة للرئيسية</Link></Button></div></div>;
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white">
+        <Helmet>
+          <title>جاري التحميل... | وجهة Wujha</title>
+          <meta property="og:title" content="جاري التحميل... | وجهة Wujha" />
+        </Helmet>
+        <Loader2 className="h-8 w-8 text-wujha-accent animate-spin" />
+      </div>
+    );
+  }
+
+  if (!allocation || !event) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white p-4 text-center">
+        <Helmet>
+          <title>الرابط غير صالح | وجهة Wujha</title>
+          <meta property="og:title" content="الرابط غير صالح | وجهة Wujha" />
+        </Helmet>
+        <div className="max-w-md space-y-6">
+          <AlertTriangle className="h-10 w-10 text-red-500 mx-auto" />
+          <h1 className="text-2xl font-bold">الرابط غير صالح أو انتهت صلاحيته</h1>
+          <Button asChild className="w-full bg-wujha-accent">
+            <Link to="/">العودة للرئيسية</Link>
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   const isSoldOut = allocation.used_count >= allocation.quota;
   const hasEventInfo = event.age_restriction || event.dress_code || event.terms_ar || event.organizers?.description_ar;
