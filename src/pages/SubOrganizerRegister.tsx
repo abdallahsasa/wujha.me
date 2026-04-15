@@ -234,7 +234,7 @@ const SubOrganizerRegister = () => {
   return (
     <div className="min-h-screen bg-white rtl" dir="rtl">
       <Helmet>
-        <title>وجهة | wujha - فعالية {event.title_ar} | {allocation.sub_organizers?.name}</title>
+        <title>{`وجهة | wujha - فعالية ${event.title_ar} | ${allocation.sub_organizers?.name || ""}`}</title>
         <meta property="og:title" content={`وجهة | wujha - فعالية ${event.title_ar} | ${allocation.sub_organizers?.name}`} />
         <meta property="og:description" content={event.short_description_ar || event.description_ar?.substring(0, 150)} />
         <meta property="og:image" content={optimizeUrl(event.hero_thumbnail || event.cover_image || "")} />

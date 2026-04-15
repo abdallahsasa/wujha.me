@@ -268,7 +268,7 @@ export default function EventDetail() {
   return (
     <div className="min-h-screen bg-white">
       <Helmet>
-        <title>{event.title_ar} — وجهة</title>
+        <title>{`${event.title_ar} — وجهة`}</title>
         <meta name="description" content={event.short_description_ar} />
         <link rel="canonical" href={canonicalUrl} />
         <meta property="og:title" content={event.title_ar} />

@@ -187,7 +187,7 @@ export default function PlaceDetail() {
   return (
     <div className="min-h-screen">
       <Helmet>
-        <title>{place.name_ar} — وجهة</title>
+        <title>{`${place.name_ar} — وجهة`}</title>
         <meta name="description" content={ogDescription} />
         <link rel="canonical" href={canonicalUrl} />
         <meta property="og:title" content={place.name_ar} />
