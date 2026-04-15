@@ -69,7 +69,8 @@ export default function EventGuestList({ eventId }: { eventId: string }) {
   const [filter, setFilter] = useState<FilterMode>("all");
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [eventTerms, setEventTerms] = useState<string>("");
-
+  const fetchData = useCallback(async () => {
+    setLoading(true);
     const [ticketsRes, typesRes, eventRes] = await Promise.all([
       supabase
         .from("tickets")
