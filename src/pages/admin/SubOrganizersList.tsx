@@ -142,7 +142,10 @@ const SubOrganizersList = () => {
 
   const onAllocate = async (values: z.infer<typeof allocateSchema>) => {
     if (!selectedStaff) return;
-    const slug = `${selectedStaff.name.toLowerCase().replace(/\s+/g, "-")}-${Math.random().toString(36).substring(2, 7)}`;
+    const nameSlug = selectedStaff.name.trim().toLowerCase().replace(/\s+/g, "-");
+    const areaSlug = values.seating_area?.trim().toLowerCase().replace(/\s+/g, "-");
+    const eventPrefix = values.event_id.slice(0, 4);
+    const slug = `${eventPrefix}-${nameSlug}${areaSlug ? `-${areaSlug}` : ""}-${Math.random().toString(36).substring(2, 5)}`;
     
     const { error } = await (supabase as any).from("sub_organizer_allocations").insert([{
       event_id: values.event_id,

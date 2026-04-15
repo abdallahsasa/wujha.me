@@ -58,7 +58,7 @@ const SubOrganizerRegister = () => {
       setLoading(true);
       const { data: allocData, error: allocError } = await (supabase as any)
         .from("sub_organizer_allocations")
-        .select(`*, events (*, venues (*), cities(name_ar), categories(id, name_ar), organizers(name_ar, logo, description_ar)), ticket_types (*)`)
+        .select(`*, sub_organizers:admin_users(name), events (*, venues (*), cities(name_ar), categories(id, name_ar), organizers(name_ar, logo, description_ar)), ticket_types (*)`)
         .eq("unique_slug", subSlug).single();
 
       if (allocError || !allocData) {
@@ -206,7 +206,14 @@ const SubOrganizerRegister = () => {
 
   return (
     <div className="min-h-screen bg-white rtl" dir="rtl">
-      <Helmet><title>حجز تذكرة | {event.title_ar}</title></Helmet>
+      <Helmet>
+        <title>وجهة | wujha - فعالية {event.title_ar} | {allocation.sub_organizers?.name}</title>
+        <meta property="og:title" content={`وجهة | wujha - فعالية ${event.title_ar} | ${allocation.sub_organizers?.name}`} />
+        <meta property="og:description" content={event.short_description_ar || event.description_ar?.substring(0, 150)} />
+        <meta property="og:image" content={optimizeUrl(event.hero_thumbnail || event.cover_image || "")} />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content={window.location.href} />
+      </Helmet>
       
       <section className="relative w-full h-[250px] md:h-[400px] overflow-hidden">
         <img src={optimizeUrl(event.hero_thumbnail || event.cover_image || "")} alt={event.title_ar} className="h-full w-full object-cover" />
