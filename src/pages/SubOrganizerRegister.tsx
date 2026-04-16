@@ -270,7 +270,11 @@ const SubOrganizerRegister = () => {
               </div>
               <div className="mt-4 p-4 bg-gray-50 rounded-2xl flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full bg-wujha-accent/10 flex items-center justify-center shrink-0"><Share2 className="h-5 w-5 text-wujha-accent" /></div>
-                <p className="text-xs text-muted-foreground leading-relaxed">ستصلك التذكرة فوراً بعد إتمام عملية التسجيل، يرجى تقديم رمز QR عند الدخول.</p>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  ستصلك التذكرة فوراً بعد إتمام عملية التسجيل، يرجى تقديم رمز QR عند الدخول.
+                  <br />
+                  تنظيم شركة <a href="https://Thedate71.com" target="_blank" rel="noopener noreferrer" className="text-wujha-accent hover:underline">The Date 71</a>
+                </p>
               </div>
             </div>
           </div>
