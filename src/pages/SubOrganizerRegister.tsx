@@ -263,7 +263,7 @@ const SubOrganizerRegister = () => {
 
       <div className="mx-auto max-w-[1200px] px-4 md:px-6 py-8">
         <div className="flex flex-col lg:flex-row gap-8">
-          <div className="order-2 lg:order-1 lg:w-[35%] shrink-0">
+          <div className="hidden lg:block lg:order-1 lg:w-[35%] shrink-0">
             <div className="sticky top-24">
               <div className="rounded-2xl border border-wujha-border p-6 bg-white shadow-sm ring-1 ring-black/5">
                 <RegistrationForm />
@@ -308,6 +308,13 @@ const SubOrganizerRegister = () => {
             )}
 
             <div className="prose prose-zinc prose-sm max-w-none text-gray-600 leading-[1.8] mb-12 whitespace-pre-wrap">{event.description_ar}</div>
+
+            {/* Mobile Registration Form */}
+            <div className="lg:hidden mb-12">
+              <div className="rounded-2xl border border-wujha-border p-6 bg-white shadow-sm ring-1 ring-black/5">
+                <RegistrationForm />
+              </div>
+            </div>
 
             {/* ── Gallery ── */}
             {images.length > 0 && (
