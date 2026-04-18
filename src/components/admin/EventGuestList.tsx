@@ -25,6 +25,7 @@ interface Ticket {
   qr_code: string;
   ticket_code: string | null;
   ticket_type_id: string;
+  sub_organizer_allocations?: { seating_area: string | null } | null;
 }
 
 interface TicketType {
@@ -74,7 +75,7 @@ export default function EventGuestList({ eventId }: { eventId: string }) {
     const [ticketsRes, typesRes, eventRes] = await Promise.all([
       supabase
         .from("tickets")
-        .select("id, guest_name, guest_phone, guest_email, status, payment_status, payment_method, payment_reference, payment_amount, checked_in_at, created_at, qr_code, ticket_code, ticket_type_id")
+        .select("id, guest_name, guest_phone, guest_email, status, payment_status, payment_method, payment_reference, payment_amount, checked_in_at, created_at, qr_code, ticket_code, ticket_type_id, sub_organizer_allocations(seating_area)")
         .eq("event_id", eventId)
         .order("created_at", { ascending: false }),
       supabase
@@ -291,11 +292,12 @@ export default function EventGuestList({ eventId }: { eventId: string }) {
   };
 
   const exportCsv = () => {
-    const header = "Guest Name,Phone,Email,Tier,Status,Payment Status,Payment Method,Payment Ref,Amount,Checked In At,Registered At";
+    const header = "Guest Name,Phone,Email,Tier,Seating Area,Status,Payment Status,Payment Method,Payment Ref,Amount,Checked In At,Registered At";
     const rows = tickets.map(t =>
       [
         `"${t.guest_name}"`, t.guest_phone, t.guest_email,
         `"${typeMap.get(t.ticket_type_id) || ""}"`,
+        `"${t.sub_organizer_allocations?.seating_area || ""}"`,
         t.status, t.payment_status, t.payment_method || "", t.payment_reference || "",
         t.payment_amount ?? "", t.checked_in_at ? format(new Date(t.checked_in_at), "yyyy-MM-dd HH:mm") : "",
         format(new Date(t.created_at), "yyyy-MM-dd HH:mm"),
@@ -387,6 +389,7 @@ export default function EventGuestList({ eventId }: { eventId: string }) {
                 <TableHead>الرمز</TableHead>
                 <TableHead>الهاتف</TableHead>
                 <TableHead>الفئة</TableHead>
+                <TableHead>المنطقة</TableHead>
                 <TableHead>الكمية</TableHead>
                 <TableHead>الحالة</TableHead>
                 <TableHead>الدفع</TableHead>
@@ -423,6 +426,9 @@ export default function EventGuestList({ eventId }: { eventId: string }) {
                     </TableCell>
                     <TableCell>
                       <Badge variant="outline" className="text-xs">{g.tierName}</Badge>
+                    </TableCell>
+                    <TableCell>
+                      <span className="text-xs">{tickets.find(t => g.ticketIds.includes(t.id))?.sub_organizer_allocations?.seating_area || "—"}</span>
                     </TableCell>
                     <TableCell>
                       <Badge variant="outline">{g.quantity}</Badge>
