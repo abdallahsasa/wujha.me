@@ -64,7 +64,8 @@ const GuestsList = () => {
         .from("tickets")
         .select("guest_name, guest_phone, guest_email, created_at, user_id")
         .in("event_id", eventIds)
-        .order("created_at", { ascending: false });
+        .order("created_at", { ascending: false })
+        .limit(10000);
 
       if (te) {
         toast({ title: "Error", description: te.message, variant: "destructive" });
@@ -100,7 +101,8 @@ const GuestsList = () => {
       const { data, error } = await supabase
         .from("users")
         .select("id, name, phone, email, total_events_attended, is_active, created_at, cities(name_ar)")
-        .order("created_at", { ascending: false });
+        .order("created_at", { ascending: false })
+        .limit(10000);
 
       if (error) {
         toast({ title: "Error", description: error.message, variant: "destructive" });

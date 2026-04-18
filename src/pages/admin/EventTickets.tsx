@@ -48,7 +48,8 @@ const EventTickets = () => {
       .from("tickets")
       .select("*, ticket_types(name_ar), sub_organizer_allocations(seating_area)")
       .eq("event_id", eventId)
-      .order("created_at", { ascending: false });
+      .order("created_at", { ascending: false })
+      .limit(10000);
 
     if (error) {
       toast({ title: "Error", description: error.message, variant: "destructive" });

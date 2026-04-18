@@ -77,7 +77,8 @@ export default function EventGuestList({ eventId }: { eventId: string }) {
         .from("tickets")
         .select("id, guest_name, guest_phone, guest_email, status, payment_status, payment_method, payment_reference, payment_amount, checked_in_at, created_at, qr_code, ticket_code, ticket_type_id, sub_organizer_allocations(seating_area)")
         .eq("event_id", eventId)
-        .order("created_at", { ascending: false }),
+        .order("created_at", { ascending: false })
+        .limit(10000),
       supabase
         .from("ticket_types")
         .select("id, name_ar")
