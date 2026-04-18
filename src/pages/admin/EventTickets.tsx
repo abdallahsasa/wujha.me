@@ -44,18 +44,37 @@ const EventTickets = () => {
 
   const fetchTickets = async () => {
     setLoading(true);
-    const { data, error } = await supabase
-      .from("tickets")
-      .select("*, ticket_types(name_ar), sub_organizer_allocations(seating_area)")
-      .eq("event_id", eventId)
-      .order("created_at", { ascending: false })
-      .limit(10000);
+    let allData: TicketRow[] = [];
+    let from = 0;
+    const PAGE_SIZE = 1000;
+    let hasMore = true;
 
-    if (error) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
-    } else {
-      setTickets(data as unknown as TicketRow[]);
+    while (hasMore) {
+      const { data, error } = await supabase
+        .from("tickets")
+        .select("*, ticket_types(name_ar), sub_organizer_allocations(seating_area)")
+        .eq("event_id", eventId)
+        .order("created_at", { ascending: false })
+        .range(from, from + PAGE_SIZE - 1);
+
+      if (error) {
+        toast({ title: "Error", description: error.message, variant: "destructive" });
+        break;
+      }
+
+      if (data && data.length > 0) {
+        allData = [...allData, ...(data as unknown as TicketRow[])];
+        if (data.length < PAGE_SIZE || allData.length >= 10000) {
+          hasMore = false;
+        } else {
+          from += PAGE_SIZE;
+        }
+      } else {
+        hasMore = false;
+      }
     }
+
+    setTickets(allData);
     setLoading(false);
   };
 

@@ -72,13 +72,8 @@ export default function EventGuestList({ eventId }: { eventId: string }) {
   const [eventTerms, setEventTerms] = useState<string>("");
   const fetchData = useCallback(async () => {
     setLoading(true);
-    const [ticketsRes, typesRes, eventRes] = await Promise.all([
-      supabase
-        .from("tickets")
-        .select("id, guest_name, guest_phone, guest_email, status, payment_status, payment_method, payment_reference, payment_amount, checked_in_at, created_at, qr_code, ticket_code, ticket_type_id, sub_organizer_allocations(seating_area)")
-        .eq("event_id", eventId)
-        .order("created_at", { ascending: false })
-        .limit(10000),
+
+    const [typesRes, eventRes] = await Promise.all([
       supabase
         .from("ticket_types")
         .select("id, name_ar")
@@ -89,9 +84,42 @@ export default function EventGuestList({ eventId }: { eventId: string }) {
         .eq("id", eventId)
         .single(),
     ]);
-    if (ticketsRes.data) setTickets(ticketsRes.data as Ticket[]);
+
     if (typesRes.data) setTicketTypes(typesRes.data as TicketType[]);
     if (eventRes.data) setEventTerms(eventRes.data.terms_ar || "");
+
+    // Paginated fetch for tickets to bypass 1000-row limit
+    let allTickets: Ticket[] = [];
+    let from = 0;
+    const PAGE_SIZE = 1000;
+    let hasMore = true;
+
+    while (hasMore) {
+      const { data, error: ticketsErr } = await supabase
+        .from("tickets")
+        .select("id, guest_name, guest_phone, guest_email, status, payment_status, payment_method, payment_reference, payment_amount, checked_in_at, created_at, qr_code, ticket_code, ticket_type_id, sub_organizer_allocations(seating_area)")
+        .eq("event_id", eventId)
+        .order("created_at", { ascending: false })
+        .range(from, from + PAGE_SIZE - 1);
+
+      if (ticketsErr) {
+        console.error("Error fetching tickets batch:", ticketsErr);
+        break;
+      }
+
+      if (data && data.length > 0) {
+        allTickets = [...allTickets, ...(data as Ticket[])];
+        if (data.length < PAGE_SIZE || allTickets.length >= 10000) {
+          hasMore = false;
+        } else {
+          from += PAGE_SIZE;
+        }
+      } else {
+        hasMore = false;
+      }
+    }
+
+    setTickets(allTickets);
     setLoading(false);
   }, [eventId]);
 

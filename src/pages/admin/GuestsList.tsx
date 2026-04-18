@@ -59,24 +59,41 @@ const GuestsList = () => {
         return;
       }
 
-      // 1. Get ALL tickets for these events
-      const { data: ticketData, error: te } = await supabase
-        .from("tickets")
-        .select("guest_name, guest_phone, guest_email, created_at, user_id")
-        .in("event_id", eventIds)
-        .order("created_at", { ascending: false })
-        .limit(10000);
+      // 1. Get ALL tickets for these events (Paginated)
+      let allTickets: any[] = [];
+      let from = 0;
+      const PAGE_SIZE = 1000;
+      let hasMore = true;
 
-      if (te) {
-        toast({ title: "Error", description: te.message, variant: "destructive" });
-        setLoading(false);
-        return;
+      while (hasMore) {
+        const { data: ticketBatch, error: te } = await supabase
+          .from("tickets")
+          .select("guest_name, guest_phone, guest_email, created_at, user_id")
+          .in("event_id", eventIds)
+          .order("created_at", { ascending: false })
+          .range(from, from + PAGE_SIZE - 1);
+
+        if (te) {
+          toast({ title: "Error", description: te.message, variant: "destructive" });
+          break;
+        }
+
+        if (ticketBatch && ticketBatch.length > 0) {
+          allTickets = [...allTickets, ...ticketBatch];
+          if (ticketBatch.length < PAGE_SIZE || allTickets.length >= 10000) {
+            hasMore = false;
+          } else {
+            from += PAGE_SIZE;
+          }
+        } else {
+          hasMore = false;
+        }
       }
 
       // 2. Map to UserRow structure (combining duplicates by phone/email)
       const uniqueGuests = new Map<string, UserRow>();
       
-      ticketData?.forEach(t => {
+      allTickets.forEach(t => {
         const key = t.guest_phone || t.guest_email || `anon-${crypto.randomUUID()}`;
         if (!uniqueGuests.has(key)) {
           uniqueGuests.set(key, {
@@ -87,7 +104,7 @@ const GuestsList = () => {
             total_events_attended: 1,
             is_active: true,
             created_at: t.created_at,
-            cities: null, // We'll fetch this if we have a user_id
+            cities: null,
           });
         } else {
           const g = uniqueGuests.get(key)!;
@@ -97,18 +114,36 @@ const GuestsList = () => {
 
       setUsers(Array.from(uniqueGuests.values()));
     } else {
-      // Admins: fetch all users
-      const { data, error } = await supabase
-        .from("users")
-        .select("id, name, phone, email, total_events_attended, is_active, created_at, cities(name_ar)")
-        .order("created_at", { ascending: false })
-        .limit(10000);
+      // Admins: fetch all users (Paginated)
+      let allUsers: UserRow[] = [];
+      let from = 0;
+      const PAGE_SIZE = 1000;
+      let hasMore = true;
 
-      if (error) {
-        toast({ title: "Error", description: error.message, variant: "destructive" });
-      } else {
-        setUsers((data as unknown as UserRow[]) ?? []);
+      while (hasMore) {
+        const { data, error } = await supabase
+          .from("users")
+          .select("id, name, phone, email, total_events_attended, is_active, created_at, cities(name_ar)")
+          .order("created_at", { ascending: false })
+          .range(from, from + PAGE_SIZE - 1);
+
+        if (error) {
+          toast({ title: "Error", description: error.message, variant: "destructive" });
+          break;
+        }
+
+        if (data && data.length > 0) {
+          allUsers = [...allUsers, ...(data as unknown as UserRow[])];
+          if (data.length < PAGE_SIZE || allUsers.length >= 10000) {
+            hasMore = false;
+          } else {
+            from += PAGE_SIZE;
+          }
+        } else {
+          hasMore = false;
+        }
       }
+      setUsers(allUsers);
     }
     setLoading(false);
   };
