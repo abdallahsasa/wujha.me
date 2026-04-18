@@ -128,7 +128,7 @@ export default function TicketSelectionModal({ open, onClose, event, ticketTypes
     }
     setPhoneError("");
 
-    if (!isFree && !normalizedEmail) { toast.error("الرجاء إدخال البريد الإلكتروني"); return; }
+
 
     setSubmitting(true);
 
@@ -357,8 +357,7 @@ export default function TicketSelectionModal({ open, onClose, event, ticketTypes
                   {phoneError && <p className="text-xs text-destructive">{phoneError}</p>}
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-wujha-text">
-                    البريد الإلكتروني {!isFree && <span className="text-destructive">*</span>}
+                    البريد الإلكتروني (اختياري)
                   </label>
                   <input value={email} onChange={e => !publicUser && setEmail(e.target.value)} placeholder="email@example.com" type="email" dir="ltr"
                     maxLength={255} readOnly={!!publicUser}

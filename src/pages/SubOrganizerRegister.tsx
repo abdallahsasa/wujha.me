@@ -28,7 +28,7 @@ const registerSchema = z.object({
     .min(2, "الاسم قصير جداً")
     .regex(/^[\u0600-\u06FFa-zA-Z\s]+$/, "الاسم يجب أن يحتوي على حروف فقط (عربي أو إنجليزي)"),
   phone: z.string().min(8, "رقم الهاتف غير صحيح"),
-  email: z.string().email("البريد الإلكتروني غير صحيح"),
+  email: z.string().email("البريد الإلكتروني غير صحيح").optional().or(z.literal("")),
   birthday: z.string().min(1, "تاريخ الميلاد مطلوب"),
 });
 
@@ -216,7 +216,7 @@ const SubOrganizerRegister = () => {
                 <FormItem><FormLabel className="text-xs font-bold mr-1">رقم الجوال</FormLabel><FormControl><Input placeholder="09xxxxxxxx" {...field} className="rounded-xl border-wujha-border bg-wujha-bg" dir="ltr" /></FormControl><FormMessage /></FormItem>
               )} />
               <FormField control={form.control} name="email" render={({ field }) => (
-                <FormItem><FormLabel className="text-xs font-bold mr-1">البريد الإلكتروني</FormLabel><FormControl><Input type="email" placeholder="example@mail.com" {...field} className="rounded-xl border-wujha-border bg-wujha-bg" dir="ltr" /></FormControl><FormMessage /></FormItem>
+                <FormItem><FormLabel className="text-xs font-bold mr-1">البريد الإلكتروني (اختياري)</FormLabel><FormControl><Input type="email" placeholder="example@mail.com" {...field} className="rounded-xl border-wujha-border bg-wujha-bg" dir="ltr" /></FormControl><FormMessage /></FormItem>
               )} />
               <FormField control={form.control} name="birthday" render={({ field }) => (
                 <FormItem><FormLabel className="text-xs font-bold mr-1">تاريخ الميلاد</FormLabel><FormControl><Input type="date" {...field} className="rounded-xl border-wujha-border bg-wujha-bg" /></FormControl><FormMessage /></FormItem>

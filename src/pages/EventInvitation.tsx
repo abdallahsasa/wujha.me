@@ -346,7 +346,7 @@ export default function EventInvitation() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-gray-300">البريد الإلكتروني</Label>
+              <Label htmlFor="email" className="text-gray-300">البريد الإلكتروني (اختياري)</Label>
               <Input
                 id="email"
                 type="email"
