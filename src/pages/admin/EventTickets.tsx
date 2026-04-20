@@ -19,6 +19,7 @@ interface TicketRow {
   guest_count: number;
   status: string;
   ticket_code: string;
+  qr_code: string;
   created_at: string;
   ticket_types: { name_ar: string } | null;
   sub_organizer_allocations: { seating_area: string | null } | null;
@@ -85,7 +86,7 @@ const EventTickets = () => {
   );
 
   const exportToCSV = () => {
-    const headers = ["Guest Name", "Phone", "Email", "Birthday", "Guests", "Ticket Type", "Seating Area", "Code", "Status"];
+    const headers = ["Guest Name", "Phone", "Email", "Birthday", "Guests", "Ticket Type", "Seating Area", "Code", "QR Code", "Status"];
     const rows = filteredTickets.map(t => [
       t.guest_name,
       t.guest_phone,
@@ -95,6 +96,7 @@ const EventTickets = () => {
       t.ticket_types?.name_ar || "—",
       t.sub_organizer_allocations?.seating_area || "—",
       t.ticket_code,
+      t.qr_code || "",
       t.status
     ]);
 
