@@ -321,7 +321,7 @@ export default function EventGuestList({ eventId }: { eventId: string }) {
   };
 
   const exportCsv = () => {
-    const header = "Guest Name,Phone,Email,Tier,Seating Area,Status,Payment Status,Payment Method,Payment Ref,Amount,Checked In At,Registered At,QR Code";
+    const header = "Guest Name,Phone,Email,Tier,Seating Area,Status,Payment Status,Payment Method,Payment Ref,Amount,Checked In At,Registered At,Code";
     const rows = tickets.map(t =>
       [
         `"${t.guest_name}"`, t.guest_phone, t.guest_email,

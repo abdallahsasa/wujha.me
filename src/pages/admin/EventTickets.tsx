@@ -86,7 +86,7 @@ const EventTickets = () => {
   );
 
   const exportToCSV = () => {
-    const headers = ["Guest Name", "Phone", "Email", "Birthday", "Guests", "Ticket Type", "Seating Area", "Code", "QR Code", "Status"];
+    const headers = ["Guest Name", "Phone", "Email", "Birthday", "Guests", "Ticket Type", "Seating Area", "Code", "Status"];
     const rows = filteredTickets.map(t => [
       t.guest_name,
       t.guest_phone,
@@ -95,7 +95,6 @@ const EventTickets = () => {
       t.guest_count,
       t.ticket_types?.name_ar || "—",
       t.sub_organizer_allocations?.seating_area || "—",
-      t.ticket_code,
       t.qr_code || "",
       t.status
     ]);
